@@ -13,7 +13,8 @@
     transport: ['运输方式比较', '选择运输方式', '依次选择公路、铁路、水运。综合比较路线条件和货物需求。', '公路', '水运'],
     ecology: ['流域修复实验', '流域修复投入', '沿上游到下游观察修复效果。数值是教学指数，非工程预测。', '少', '多']
   };
-  let course, current, scene, stepIndex = 0, tab = 'explain', toastTimer, api = {}, db, audioUrl, audioTicket = 0;
+  const staticMode = Boolean(window.GEOGRAPHY_STATIC);
+  let course, current, scene, stepIndex = 0, tab = 'explain', toastTimer, api = window.GEOGRAPHY_STATIC || {}, db, audioUrl, audioTicket = 0;
   const serverClips = {};
   let history = [], chatBusy = false, challenge = null, interactionChoice = null, quizChoice = null;
   const audioIds = new Set();
@@ -60,7 +61,7 @@
       }
       nav.append(details);
     }
-    if (!matches) nav.append(el('p', 'empty-search', '没有找到这个词。试试“季风”“水资源”，也可以向老师提问。'));
+    if (!matches) nav.append(el('p', 'empty-search', '没有找到这个词。试试“季风”“水资源”。'));
     updateProgress();
   }
   function renderMetrics() {
@@ -110,7 +111,7 @@
     $('play-narration').disabled = false;
     $('play-narration').textContent = imported || cached ? '▷ 播放讲解' : api.tts?.configured ? '▷ 生成并播放讲解' : '♫ 导入正式配音';
     $('audio-status').textContent = imported ? `浏览器已保存配音 · ${step.cue}` : cached ? 'AI 配音已缓存 · 可反复播放' : api.tts?.configured ? '中文 AI 配音 · 首次点击生成，之后直接播放' : '可先阅读讲解，或导入自己的配音';
-    $('guide-status').textContent = `第 ${stepIndex + 1} 段 / 共 ${current.steps.length} 段 · 随时可以追问`;
+    $('guide-status').textContent = `第 ${stepIndex + 1} 段 / 共 ${current.steps.length} 段 · ${staticMode ? '读讲解，再动手练习' : '随时可以追问'}`;
   }
   function renderInteraction() {
     const interaction = current.interaction;
@@ -295,15 +296,19 @@
   }
   async function init() {
     try {
-      const response = await fetch('/curriculum.json'); if (!response.ok) throw new Error('课程文件未找到'); course = await response.json();
+      const response = await fetch('./curriculum.json'); if (!response.ok) throw new Error('课程文件未找到'); course = await response.json();
       const ids = new Set(course.nodes.map(n => n.id)); for (const key of ['visited', 'interactionPassed', 'quizPassed']) state[key] = [...new Set(state[key].filter(id => ids.has(id)))];
       if (!window.ChinaScene) throw new Error('沙盘渲染文件未完整载入');
       scene = new window.ChinaScene($('scene'), {onSelect:selectProvince});
       try { await initAudioDB(); } catch (_) { toast('当前浏览器无法保存音频，文字课程仍可使用。'); }
       wire(); selectNode(ids.has(saved.lastNode) ? saved.lastNode : course.nodes[0].id); $('loading').hidden = true;
       window.geographyApp = {getState:() => ({nodeId:current.id, step:stepIndex, tab, visited:[...state.visited], mastered:course.nodes.filter(n => mastered(n.id)).map(n => n.id), interactionChoice, quizChoice, audioIds:[...audioIds], notes:state.notes.length, challenge:challenge?.id || null, scene:scene.getState()}), selectNode, getCourse:() => course};
-      try { const r = await fetch('/api/status'); api = await r.json(); Object.assign(serverClips, api.tts?.clips || {}); renderStep(); $('ai-status').textContent = api.configured ? '已配置 · 提问时连接课程老师' : '问答尚未配置 · 可先使用课程与练习'; } catch (_) { $('ai-status').textContent = '问答连接不可用 · 请检查网络后重试'; }
-    } catch (err) { $('loading').textContent = `${err.message}。请使用“启动地理探索课.command”重新打开。`; }
+      try {
+        if (!staticMode) { const r = await fetch('/api/status'); api = await r.json(); }
+        Object.assign(serverClips, api.tts?.clips || {}); renderStep();
+        $('ai-status').textContent = staticMode ? '免费公开学习版 · 不提供 AI 问答与新配音生成' : api.configured ? '已配置 · 提问时连接课程老师' : '问答尚未配置 · 可先使用课程与练习';
+      } catch (_) { $('ai-status').textContent = '问答连接不可用 · 请检查网络后重试'; }
+    } catch (err) { $('loading').textContent = `${err.message}。${staticMode ? '请刷新页面重试。' : '请使用“启动地理探索课.command”重新打开。'}`; }
   }
   init();
 })();

@@ -1,6 +1,8 @@
 # 中国地理探索课 · 八年级上册
 
-在线课堂：[中国地理探索课](https://china-geography-8a-chrisopal.chrisxie.chatgpt.site)（Sites 私密访问，需要所有者登录）。
+免费公开课堂：[中国地理探索课](https://chrisopal.github.io/china-geography-8a/)（无需登录；地图、课程、练习和首课 3 段已有配音可用）。公开版不提供 AI 问答和新配音生成，可导入自己的音频。
+
+原 Sites 课堂：[私密版本](https://china-geography-8a-chrisopal.chrisxie.chatgpt.site)（需要所有者登录）。
 
 本机启动后访问：**http://127.0.0.1:8767/**
 
@@ -77,6 +79,14 @@ node tests/check_math.cjs
 浏览器回归脚本在 `tests/browser-*.js`，使用现有 Playwright CLI 的 `run-code --filename=...` 执行，无需新测试依赖。结果、截图和实际模型响应在 `evidence/`；功能验证、配音可解码/播放、视觉检查与孩子真实学习效果是不同的证据。
 
 ## Sites 部署
+
+### GitHub Pages 免费公开版
+
+运行 `node scripts/build-pages.mjs` 生成 `dist/pages/`，将该目录发布到 `gh-pages` 分支根目录；仓库 Settings → Pages 选择 `gh-pages` / `/ (root)`。不需要新账号、域名、密钥或付费后端。`deployment.json` 记录对应源码提交，可用于核对线上版本。发布前应提交源码，再构建，以便记录准确提交。
+
+构建只包含前端、内嵌地图数据、课程和匹配当前讲稿的已有 MP3，不包含 Python、Worker、secret 或 API。所有运行资源使用相对路径且由同站点提供，适配 `/china-geography-8a/` 项目路径。进度和导入音频仍只保存在当前浏览器。微信及中国大陆网络的可达性需在真实设备和网络下另行验证。
+
+### 原私密 Sites 版本
 
 `worker/api.mjs` 实现与本机 Python 服务一致的问答和配音接口；`scripts/build-sites.mjs` 将前端、课程数据、首课音频与接口打包成一个 Worker ESM，无需安装依赖。需要 Node.js 20+。
 
