@@ -111,3 +111,17 @@ node scripts/validate-sites.mjs
 新增 `tests/check_camera.cjs`、`tests/browser-interaction-upgrade.js` 和 `tests/browser-narration-sync.js`，覆盖相机、手势取消、缩放锚点、双流域下降路径、自由探索与配音/服务异步返回的冲突。新增浏览器脚本默认使用 Worker 构建预览 `http://127.0.0.1:8768/`。
 
 交互设计参考 [WeduLab 等高线课堂](https://wedulab.com/labs/contour) 与 [水循环课堂](https://wedulab.com/labs/water)，未复制其实现或素材。此项目仍使用无依赖 Canvas2D 投影模型，不是 WebGL 引擎，地形与水流为教学示意。触摸证据来自 Chromium 模拟，不代表已在实体手机或 Safari 验证。
+
+
+## 1.2.0 过程实验
+
+参考 [WeduLab 水循环沙盘](https://wedulab.com/labs/water) 和 [等高线课堂](https://wedulab.com/labs/contour) 的过程观察与条件对比方式，保留本站八上课程结构。
+
+- 季风显示多束冷干气流，以及东南、西南两路暖湿气流与陆地云雨。
+- 雨水实验支持两侧同时落雨，追踪坡面、河道与各自出口；其他场景通过情景按钮比较植被、坡地保护、能源、运输和修复条件。
+- 动态场景支持 0.5× / 1× / 2× 动画速度与重播；暂停和系统“减少动态”仍有效。动画速度不表示实际自然过程的时间比例。
+- 快捷情景、滑块和观察说明同步；继续保留自由镜头、讲解跟随、课程练习和音频缓存。
+
+仍为无依赖 Canvas 投影教学模型。气流路线、云雨和过程图形是概念示意，不是实测地形、真实风场或水文预测。
+
+验证命令增加 `node tests/check_scene_processes.cjs`；浏览器流程见 `tests/browser-process-upgrade.js`。既有课程、镜头、音频与两种发布构建仍需一起回归。

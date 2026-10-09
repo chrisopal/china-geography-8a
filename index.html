@@ -33,6 +33,10 @@
       <div class="stage-bottom"><span id="gesture-hint">拖动旋转 · 滚轮缩放 · 右键平移</span><span id="model-note">教学示意 · 地形非实测高程</span></div>
       <div id="loading" class="loading">正在展开中国地理沙盘…</div>
     </section>
+    <section id="simulation-controls" class="simulation-controls" aria-label="动画回放" hidden>
+      <div class="simulation-playback"><span>动画速度</span><div role="group" aria-label="动画速度"><button data-speed="0.5" aria-pressed="false">0.5×</button><button data-speed="1" aria-pressed="true">1×</button><button data-speed="2" aria-pressed="false">2×</button></div><button id="replay-process">重播动画 ↺</button></div>
+      <p id="process-chain" class="process-chain"></p>
+    </section>
     <section class="experiment" aria-label="动手探索">
       <div class="experiment-top"><span class="eyebrow mint">01 / 动手探索</span><button id="reset-experiment" class="text-button">重置实验 ↺</button></div>
       <div class="slider-row"><div><label id="parameter-label" for="parameter">地形起伏</label><p id="parameter-hint">比较平面地图与地形起伏</p></div><div class="slider-control"><input id="parameter" type="range" min="0" max="100" value="50" aria-label="实验参数"><output id="parameter-value">50</output><div><span id="parameter-min">平缓</span><span id="parameter-max">起伏</span></div></div></div>

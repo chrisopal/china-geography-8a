@@ -1,0 +1,23 @@
+{
+  "checks": [
+    "wrong interaction explains misconception",
+    "wrong quiz allows retry",
+    "both exercises required for mastery",
+    "mastery survives reload",
+    "search narrows curriculum",
+    "longitude calculation changes live",
+    "2020 density calculation matches data",
+    "flow = width × depth × mean speed",
+    "province challenge accepts actual canvas keyboard selection",
+    "note persisted and rendered",
+    "notes export",
+    "TTS script export",
+    "imported WAV loaded with real duration",
+    "audio survives reload via IndexedDB",
+    "all five chapters in coverage view",
+    "mobile has no horizontal overflow",
+    "mobile curriculum drawer opens",
+    "no browser runtime errors"
+  ],
+  "pageErrors": []
+}

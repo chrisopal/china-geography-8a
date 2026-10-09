@@ -84,8 +84,8 @@
         {view:'profile', parameter:85, observe:'沿箭头看总体东流，再找阶梯过渡处的落差。'}
       ],
       monsoon: [
-        {view:'oblique', parameter:0, observe:'看冬季风：气流从大陆吹向海洋。'},
-        {view:'oblique', parameter:100, observe:'看夏季风：海洋水汽进入陆地，比较降雨变化。'},
+        {view:'oblique', parameter:0, observe:'沿冷色风带看冬季风：从大陆向海洋吹。'},
+        {view:'oblique', parameter:100, observe:'沿青色与金色风带，追踪东南、西南季风带来的水汽。'},
         {view:'top', parameter:100, observe:'切换冬、夏两种情景，对照风向与水汽来源。'}
       ],
       'river-system': [
@@ -125,16 +125,27 @@
     if (!current) return;
     const p = scene.getState().options.parameter;
     let text = '';
-    if (current.id === 'monsoon') {
-      text = p < 45 ? '冬季风：由大陆向海洋吹，通常偏冷、偏干。' : p > 55 ? '夏季风：从海洋携带水汽，东部许多地区降雨增多。' : '中间值仅展示切换过程。用冬、夏按钮比较两个季节。';
+    if (current.scene === 'monsoon') {
+      text = p < 45 ? '冷色风带：偏北风从大陆吹向海洋，通常冷干。观察箭头的前进方向。' : p > 55 ? '青色为东南季风，金色为西南季风：从海洋带来水汽，观察陆地上的云雨。' : '中间值仅展示切换过程。用冬、夏按钮比较两个季节。';
       document.querySelectorAll('[data-season]').forEach(b => b.setAttribute('aria-pressed', String(p === Number(b.dataset.season))));
-    } else if (current.id === 'river-system') {
+    } else if (['river-system','watershed'].includes(current.id)) {
       const rain = scene.getState().experiment?.rain || [];
       text = rain.length === 2 ? '两侧路线已显示：同一条分水岭把地表汇流分向两个流域。' : rain.includes('left') ? '左侧雨水顺坡进入支流，再汇入干流。再到另一侧试一试。' : rain.includes('right') ? '右侧雨水进入相邻流域。再到左侧落雨，对照两条路线。' : '先预测：山脊两侧的雨水会流向同一个出口吗？';
       document.querySelectorAll('[data-rain]').forEach(b => b.setAttribute('aria-pressed', String(rain.includes(b.dataset.rain))));
     } else if (current.id === 'terrain-steps') {
       text = '地势总体西高东低；局部河流仍随具体地形转弯。高度经过夸张，非实测剖面。';
     }
+    if (!text) {
+      const observations = {
+        river: p<35 ? '保持同样的降雨：看裸露坡面怎样把泥沙带进河道，再到下游沉积。' : p>65 ? '增加植被后，比较坡面冲刷、河道里的泥沙与下游堆积。' : '慢慢改变植被覆盖，追踪坡面到下游的泥沙变化。',
+        land: p<35 ? '缺少保护时，雨水集中沿坡面冲刷。观察耕地和径流的关系。' : p>65 ? '保护坡地后，观察林草、梯田与地表径流的变化。' : '比较保护前后：哪些地方适宜耕作，哪里需要留住林草？',
+        resources: p<35 ? '从燃料到发电，再到用电端：观察传统能源占比较高的组合。' : p>65 ? '风光占比提高后，追踪发电与输电，思考为什么仍需储能和调节。' : '改变能源组合，比较风光设备与燃料消耗的变化。',
+        transport: p<34 ? '公路：观察车辆沿线路移动。灵活运输也要考虑运量、距离和费用。' : p<67 ? '铁路：观察列车与线路。比较运输速度、运量和到达条件。' : '水运：沿河道追踪船舶。适合大宗货物，受航道和港口条件限制。',
+        ecology: p<35 ? '从坡面与排放口追踪污染进入河道，观察下游扩散。' : p>65 ? '修复后比较排放、河岸植被和下游水体，观察治理怎样影响整个流域。' : '逐步增加修复投入，比较源头治理与河岸缓冲带的作用。'
+      };
+      text = observations[current.scene] || '';
+    }
+    document.querySelectorAll('[data-preset]').forEach(b => b.setAttribute('aria-pressed', String(p === Number(b.dataset.preset))));
     $('experiment-observation').textContent = text;
     $('experiment-observation').hidden = !text;
     if(!followLesson && text) $('observation-target').textContent = text;
@@ -145,15 +156,28 @@
     if (current.id === 'terrain-steps') {
       button('看全国地势', () => { freeExplore(); scene.setView('oblique'); showCameraMode(); });
       button('看西—东剖面', () => { freeExplore(); scene.setView('profile'); showCameraMode(); });
-    } else if (current.id === 'monsoon') {
+    } else if (current.scene === 'monsoon') {
       for (const [label, value] of [['冬季风',0],['夏季风',100]]) {
         const b = button(label, () => { freeExplore(); updateParameter(value); }); b.dataset.season = value;
       }
-    } else if (current.id === 'river-system') {
+    } else if (['river-system','watershed'].includes(current.id)) {
       for (const [label, side] of [['左侧落雨','left'],['右侧落雨','right']]) {
         const b = button(label, () => { freeExplore(); scene.experiment('rain-'+side); updateObservation(); }); b.dataset.rain = side;
       }
+      button('两侧同时落雨', () => { freeExplore(); scene.experiment('rain-both'); updateObservation(); });
       button('清除雨迹', () => { scene.experiment('clear-rain'); updateObservation(); });
+    } else {
+      const presets = {
+        china: current.layer === 'terrain' ? [['平缓观察',15],['强调起伏',85]] : [['减弱专题',15],['加强专题',85]],
+        river: [['裸露坡面',10],['茂密植被',90]],
+        land: [['缺少保护',10],['保护坡地',90]],
+        resources: [['传统能源为主',15],['风光能源为主',85]],
+        transport: [['公路运输',15],['铁路运输',50],['水路运输',85]],
+        ecology: [['修复前',10],['增加修复',90]]
+      };
+      for (const [label,value] of presets[current.scene] || []) {
+        const b=button(label,()=>{freeExplore();updateParameter(value);});b.dataset.preset=value;
+      }
     }
     host.hidden = !host.children.length; updateObservation();
   }
@@ -174,7 +198,7 @@
     scene.resize();
   }
   function setupScene() {
-    const isWatershed = current.id === 'river-system';
+    const isWatershed = ['river-system','watershed'].includes(current.id);
     const meta = isWatershed ? ['水系与分水岭', '转动观察两侧汇流', '追踪两条支流汇入干流，再沿金色山脊线比较两侧水流方向。', '', ''] : sceneMeta[current.scene] || sceneMeta.china;
     document.querySelector('.slider-control').hidden = isWatershed;
     document.querySelector('.slider-row').classList.toggle('observation-only', isWatershed);
@@ -182,6 +206,12 @@
     $('layer').value = current.layer; $('layer').disabled = current.scene !== 'china';
     $('scene-name').textContent = meta[0]; $('parameter-label').textContent = meta[1]; $('parameter-hint').textContent = meta[2]; $('parameter-min').textContent = meta[3]; $('parameter-max').textContent = meta[4];
     $('parameter').setAttribute('aria-label', meta[1]); updateParameter(50);
+    const chains={monsoon:'气流来源 → 水汽输送 → 陆地云雨',river:isWatershed?'降雨 → 坡面汇流 → 河道 → 各自出口':'降雨冲刷 → 泥沙入河 → 下游沉积',land:'降雨 → 地表径流 / 下渗 → 坡地保护',resources:'能源 → 发电 → 输电 → 用电',transport:'选择运输方式 → 沿线路运输 → 比较条件',ecology:'污染来源 → 河岸缓冲 → 下游水体'};
+    $('simulation-controls').hidden = !chains[current.scene];
+    $('process-chain').textContent = chains[current.scene] || '';
+    const speed = scene.getState().options.playbackSpeed || 1;
+    document.querySelectorAll('[data-speed]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.speed)===speed)));
+
     $('model-note').textContent = current.scene === 'china' ? '教学示意 · 地形非实测高程' : '教学模拟 · 数值不代表实测';
   }
   function selectNode(id) {
@@ -371,6 +401,8 @@
     document.querySelectorAll('[data-explore]').forEach(b => b.onclick = () => selectNode(b.dataset.explore));
     $('follow-lesson').onclick = () => { followLesson = !followLesson; if(followLesson) applyTeachingStep(); else showCameraMode(); };
     $('motion-toggle').onclick = () => { motionPaused = !(motionPaused || narrationHeld); narrationHeld = false; syncMotion(); };
+    document.querySelectorAll('[data-speed]').forEach(b=>b.onclick=()=>{scene.setOptions({playbackSpeed:Number(b.dataset.speed)});document.querySelectorAll('[data-speed]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));});
+    $('replay-process').onclick=()=>{motionPaused=false;narrationHeld=false;scene.replay();syncMotion();};
     $('fullscreen-scene').onclick = toggleFullscreen;
     document.addEventListener('fullscreenchange', updateFullscreen);
     $('gesture-hint').textContent = matchMedia('(pointer:coarse)').matches ? '单指旋转 · 双指缩放 / 平移' : '拖动旋转 · 滚轮缩放 · 右键平移';

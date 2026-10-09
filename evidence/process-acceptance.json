@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-09T21:49:25.424363+00:00",
+  "version": "1.2.0",
+  "visualReference": "https://wedulab.com/labs/water",
+  "sceneClasses": 7,
+  "browserChecks": {
+    "process": 40,
+    "interaction": 24,
+    "narration": 8
+  },
+  "coreChecks": 18,
+  "curriculum": {
+    "nodes": 81,
+    "narrationSteps": 243,
+    "wrongAndRightExercises": 324,
+    "allMasteredChips": 81,
+    "relatedNavigation": true,
+    "errors": []
+  },
+  "static": {
+    "staticMode": true,
+    "courseNodes": 81,
+    "audioDuration": 15.576,
+    "stepCamera": true,
+    "freeCameraPreserved": true,
+    "backendRequests": 0,
+    "errors": []
+  },
+  "unitAndApi": [
+    "check_curriculum.py",
+    "check_math.cjs",
+    "check_camera.cjs",
+    "check_scene_processes.cjs",
+    "check_worker_api.mjs",
+    "check_server.py",
+    "check_pages.mjs"
+  ],
+  "build": [
+    "build-sites.mjs",
+    "validate-sites.mjs",
+    "build-pages.mjs"
+  ],
+  "syntax": [
+    "app.js",
+    "renderer.js"
+  ],
+  "newDependencies": 0,
+  "realProviderRequests": 0,
+  "limitations": [
+    "Canvas2D projected relief, not WebGL or measured elevation/flow",
+    "Mobile and touch checks use Chromium emulation; physical phones and Safari not verified",
+    "Learning outcomes require child/teacher assessment"
+  ],
+  "status": "local-verification-passed"
+}

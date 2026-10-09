@@ -56,6 +56,14 @@ scene._down(event(20,300,250));scene._move(event(20,335,270));scene._up(event(20
 scene.setView('top',{immediate:true});assert.equal(scene._isStepsProfile(),false);scene.setView('profile',{immediate:true});
 realRender.call(scene,0); // Exercise the conceptual profile's complete Canvas drawing path.
 scene.setScene('river');scene.setOptions({focus:'river-system'});scene.experiment('rain-both');realRender.call(scene,1000); // Exercise both rain overlays and shaded watershed mesh.
+// Wind fields cover multiple geographic corridors and keep seasonal direction.
+scene.setScene('monsoon');scene.setOptions({focus:'monsoon',parameter:0});realRender.call(scene,1000);
+assert.equal(scene._windPaths.length,10);assert.equal(scene.getState().wind.clouds,0);
+for(const flow of scene._windPaths){assert.equal(flow.kind,'winter');assert.ok(flow.geographic.at(-1)[1]<flow.geographic[0][1]);assert.ok(flow.geographic.at(-1)[0]>flow.geographic[0][0]);}
+scene.setOptions({parameter:100});realRender.call(scene,1000);
+assert.equal(scene._windPaths.filter(f=>f.kind==='southeast').length,8);assert.equal(scene._windPaths.filter(f=>f.kind==='southwest').length,5);assert.ok(scene.getState().wind.clouds>5);
+for(const flow of scene._windPaths){assert.ok(flow.geographic.at(-1)[1]>flow.geographic[0][1]);assert.ok(flow.points.flat().every(Number.isFinite));}
+scene.setOptions({parameter:50});realRender.call(scene,1000);assert.equal(scene._windPaths.length,23);assert.ok(scene._windPaths.every(f=>f.weight===.5));
 scene.setScene('china');scene.setOptions({focus:'plateaus'});scene.setView('oblique',{immediate:true});realRender.call(scene,0);assert.equal(scene._hit.length,34);
 scene._down(event(9,300,200));scene._up(event(9,300,200));assert.equal(selections,1,'ordinary click still selects a province');
 const selected=scene.selected;scene._focusAt(event(9,300,200));settle();assert.ok(scene.camera.zoom>1);assert.equal(scene.selected,selected);
