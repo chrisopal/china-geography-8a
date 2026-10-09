@@ -1,0 +1,17 @@
+{
+  "siteURL": "https://china-geography-8a-chrisopal.chrisxie.chatgpt.site",
+  "html": 200,
+  "curriculumNodes": 81,
+  "qaConfigured": true,
+  "liveQA": false,
+  "qaModel": "google/gemini-3.1-flash-lite",
+  "answerCharacters": 7,
+  "relatedNodes": [],
+  "liveTTS": true,
+  "ttsCue": "monsoon-01",
+  "ttsBytes": 286171,
+  "audioDeliveredInResponse": true,
+  "audioRange": 206,
+  "credentialInResponse": false,
+  "note": "本次只重测配音；问答此前已在同一线上环境成功调用。最终版本另做独立回读。"
+}

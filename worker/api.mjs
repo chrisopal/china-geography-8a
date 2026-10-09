@@ -252,7 +252,7 @@ export function createHandler({course, assets}) {
         if (!['GET', 'HEAD'].includes(request.method)) return response(405, {error:'不支持此请求方式。'}, undefined, {Allow:'GET, HEAD, POST'});
         if (path === '/api/status') {
           const clips = Object.fromEntries((await clipIndex()).filter(item => Object.hasOwn(assets, item.bundledPath)).map(item => [item.step.cue, item.bundledPath]));
-          return response(200, {configured:!!key, model:QA_MODEL, token:await issueToken(key, url.origin), tts:{configured:!!key, model:TTS_MODEL, voice:TTS_VOICE, clips}});
+          return response(200, {version:'1.0.1', configured:!!key, model:QA_MODEL, token:await issueToken(key, url.origin), tts:{configured:!!key, model:TTS_MODEL, voice:TTS_VOICE, clips}});
         }
         if (path === '/api/curriculum') return response(200, course);
         if (path === '/') path = '/index.html';
@@ -268,7 +268,7 @@ export function createHandler({course, assets}) {
         if (audio) return audioResponse(bytes, request);
         return response(200, request.method === 'HEAD' ? null : bytes, asset.type || 'application/octet-stream', {'Content-Length':String(bytes.byteLength)});
       } catch (error) {
-        return response(error instanceof ApiError ? error.status : 502, {error:error instanceof ApiError ? error.message : '服务暂不可用，请稍后重试。', ...(error instanceof ApiError ? {} : {__debugGeoTts:{name:error.name,message:String(error.message).split(env.OPENROUTER_API_KEY || '__no_key__').join('[redacted]').slice(0,300)}})});
+        return response(error instanceof ApiError ? error.status : 502, {error:error instanceof ApiError ? error.message : '服务暂不可用，请稍后重试。'});
       }
     }
   };
