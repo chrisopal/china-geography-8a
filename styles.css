@@ -5,3 +5,43 @@
 
 .continuous-audio{display:flex;gap:6px;align-items:center;justify-content:center;font-size:9px;color:var(--muted);margin-top:12px}.continuous-audio input{accent-color:var(--mint);width:12px;height:12px;margin:0}
 .slider-row.observation-only{grid-template-columns:1fr}
+
+/* Exploration tools keep the landscape central and the next action close. */
+.featured-experiments{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:-5px}
+.featured-experiments>span{font-size:10px;color:var(--muted);margin-right:3px}
+.featured-experiments button{font-size:11px;padding:7px 12px;border-color:#33535a;background:#132c35;border-radius:5px}
+.view-toolbar{position:absolute;top:57px;left:16px;display:flex;flex-wrap:wrap;gap:0;background:#0b1d26ee;border:1px solid #395159;border-radius:7px;overflow:hidden;max-width:calc(100% - 75px)}
+.view-toolbar button{border:0;border-radius:0;padding:8px 12px;min-height:34px;font-size:11px;line-height:1.5;color:#abc2c7}
+.view-toolbar button[aria-pressed=true]{background:#284c48;color:#d8f1dd}
+.view-toolbar #follow-lesson{border-left:1px solid #395159;color:var(--gold)}
+.scene-tools{top:57px;gap:7px}.scene-tools button{width:34px;height:34px;font-size:18px}
+.stage{min-height:470px}.explorer{height:auto;min-height:calc(100vh - 76px)}
+#scene{min-height:470px}.stage{flex:1;aspect-ratio:1.46;max-height:780px}
+.observation-cue{position:absolute;left:16px;right:16px;bottom:94px;pointer-events:none;display:flex;align-items:baseline;gap:9px}
+.observation-cue>span{font-size:9px;color:var(--gold);white-space:nowrap;background:#122832e8;padding:5px 7px;border-radius:3px}
+.observation-cue p{font-size:11px;line-height:1.7;color:#e0eeea;background:#102630e8;padding:5px 8px;max-width:54ch;border-left:2px solid #619d91}
+.metrics{bottom:35px;left:16px;right:52px;gap:8px}.metric{max-width:none;min-width:95px;padding:8px 10px}.metric span{font-size:9px}.metric strong{font-size:12px}
+.stage-bottom{font-size:9px;bottom:9px;gap:12px}.province-info,.challenge-info{top:104px}
+.experiment-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.experiment-actions button{font-size:12px;min-height:40px;background:#16343e;border-color:#47727b;flex:1}
+.experiment-actions button[aria-pressed=true]{color:#d8f1de;background:#2d5146;border-color:#92bc9d}
+.experiment-actions button[data-rain=right][aria-pressed=true]{color:#ffe5b8;background:#503d25;border-color:#cda56a}
+.experiment-observation{margin-top:10px;padding:10px 12px;background:#152e34;border-left:2px solid #6caaa0;font-size:11px;line-height:1.8;color:#c7dfd9}
+.step-dots button{height:15px;background:linear-gradient(transparent 6px,#31444a 6px,#31444a 9px,transparent 9px)}
+.step-dots button.active{background:linear-gradient(transparent 6px,var(--mint) 6px,var(--mint) 9px,transparent 9px)}
+.stage:fullscreen,.focus-stage .stage{position:fixed;inset:0;z-index:50;border:0;border-radius:0;width:100vw;height:100dvh;min-height:0;max-height:none;aspect-ratio:auto;background:#0a1720}
+.stage:fullscreen #scene,.focus-stage #scene{min-height:0;height:100%}.focus-stage{overflow:hidden}
+@media(min-width:1450px){.workspace{grid-template-columns:225px minmax(0,1fr) 330px}.explorer{padding-left:24px;padding-right:24px}.stage{min-height:510px}#scene{min-height:510px}}
+@media(max-width:1000px){.stage{aspect-ratio:auto;height:500px;flex:none}.explorer{min-height:0}}
+@media(max-width:720px){
+ .featured-experiments{gap:6px}.featured-experiments>span{display:none}.featured-experiments button{flex:1;padding:9px 6px;min-height:40px;font-size:11px}
+ .stage{height:500px;min-height:0;max-height:none}#scene{min-height:0}
+ .stage-top{left:12px;right:12px}.view-toolbar{left:11px;top:52px;max-width:calc(100% - 60px)}
+ .view-toolbar button{padding:8px 9px;min-height:38px;font-size:11px}.scene-tools{right:10px;top:100px;gap:5px}.scene-tools button{width:38px;height:38px}
+ .metrics{left:11px;right:11px;bottom:40px;gap:5px}.metric{min-width:0;flex:1;padding:7px 5px}.metric span{font-size:8px}.metric strong{font-size:10px;line-height:1.4}
+ .observation-cue{left:11px;right:11px;bottom:106px;gap:6px}.observation-cue p{font-size:10px;padding:4px 7px}.observation-cue>span{font-size:8px}
+ .stage-bottom{font-size:8px;left:11px;right:11px}.stage-bottom>span:first-child{max-width:50%}.province-info,.challenge-info{top:99px;max-width:70%}
+ .experiment-actions button{font-size:11px;padding:9px 8px;min-height:44px}.experiment-observation{font-size:11px}
+ .slider-row{grid-template-columns:1fr;gap:10px}.slider-control{grid-template-columns:1fr 38px}.slider-control input{height:28px}
+ .stage:fullscreen .scene-tools,.focus-stage .scene-tools{top:100px}
+}

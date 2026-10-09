@@ -1,0 +1,16 @@
+{
+  "score": 78,
+  "verdict": "revise",
+  "category_match": true,
+  "differences": [
+    "The national relief has repeated sharp spikes on ridges and coast edges, obscuring the broad west-to-east terrain pattern.",
+    "The eastern map base is too thick and bright, making lowlands appear elevated.",
+    "The two rain route labels overlap each other and the watershed ridge label above the ridge."
+  ],
+  "suggestions": [
+    "Replace high-frequency elevation noise with a much smaller smooth variation; keep the existing 0.62-degree mesh.",
+    "Reduce the national-map base depth and darken its walls while preserving western relief.",
+    "Place the two rain labels in separated side positions below the view toolbar, away from the ridge anchor."
+  ],
+  "reasoning": "Inspection of /tmp/geo-steps-v1.png and /tmp/geo-river-v1.png confirms the requested structural defects. These screenshots precede the viewport change, so toolbar framing must be rechecked by the parent after rebuilding."
+}

@@ -1,0 +1,32 @@
+async page => {
+  const report={checks:[],errors:[]};const check=(ok,name)=>{if(!ok)throw new Error(name);report.checks.push(name);};
+  const error=e=>report.errors.push(e.message);page.on('pageerror',error);
+  await page.setViewportSize({width:1500,height:980});await page.emulateMedia({reducedMotion:'reduce'});
+  await page.route('**/api/status',async route=>{const r=await route.fetch(),data=await r.json();data.configured=true;data.tts.configured=true;await new Promise(r=>setTimeout(r,650));await route.fulfill({response:r,json:data});});
+  await page.goto('http://127.0.0.1:8768/');await page.waitForFunction(()=>window.geographyApp);
+  await page.locator('[data-explore=monsoon]').click();await page.locator('#parameter').fill('90');
+  await page.waitForFunction(()=>document.getElementById('ai-status').textContent.includes('已配置'));
+  check(await page.evaluate(()=>!geographyApp.getState().followLesson&&geographyApp.getState().scene.options.parameter===90),'late service status cannot reset experiment or camera mode');
+  await page.evaluate(()=>geographyApp.selectNode('location'));
+  await page.locator('#continuous-audio').check();await page.locator('#play-narration').click();await page.waitForFunction(()=>document.getElementById('narration-audio').currentTime>.1);
+  report.audioSeconds=await page.locator('#narration-audio').evaluate(a=>a.duration);
+  check(report.audioSeconds>10,'bundled Chinese narration plays with real duration');
+  const firstSrc=await page.locator('#narration-audio').getAttribute('src');
+  await page.locator('#play-narration').click();
+  await page.waitForFunction(()=>document.getElementById('narration-audio').paused&&geographyApp.getState().scene.paused);
+  check(await page.evaluate(()=>document.getElementById('narration-audio').paused&&geographyApp.getState().scene.paused),'pause narration also pauses scene motion');
+  await page.locator('#play-narration').click();await page.waitForFunction(()=>!document.getElementById('narration-audio').paused&&!geographyApp.getState().scene.paused);
+  check(await page.evaluate(()=>!geographyApp.getState().scene.paused),'resume narration resumes scene motion');
+  await page.locator('#scene').focus();await page.keyboard.press('ArrowRight');
+  const free=await page.evaluate(()=>geographyApp.getState().scene.camera);
+  await page.locator('#narration-audio').evaluate(a=>{a.currentTime=a.duration-.1;});
+  await page.waitForFunction(()=>geographyApp.getState().step===1&&!document.getElementById('narration-audio').paused);
+  check(JSON.stringify(free)===JSON.stringify(await page.evaluate(()=>geographyApp.getState().scene.camera)),'continuous narration respects free camera');
+  check(firstSrc!==await page.locator('#narration-audio').getAttribute('src'),'continuous narration advances to matching next clip');
+  await page.locator('#continuous-audio').uncheck();await page.locator('[data-explore=monsoon]').click();
+  await page.route('**/api/narration',async route=>{await new Promise(r=>setTimeout(r,700));await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({url:firstSrc,cue:'monsoon-01'})});});
+  await page.locator('#play-narration').click();await page.locator('[data-explore=river-system]').click();
+  await page.waitForTimeout(1000);
+  check(await page.evaluate(()=>geographyApp.getState().nodeId==='river-system'&&geographyApp.getState().followLesson&&document.getElementById('narration-audio').paused&&document.getElementById('narration-audio').hidden),'late old narration cannot play or steal new lesson');
+  await page.unroute('**/api/narration');await page.unroute('**/api/status');check(!report.errors.length,'no browser runtime errors');page.off('pageerror',error);return report;
+}

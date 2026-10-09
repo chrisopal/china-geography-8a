@@ -1,0 +1,34 @@
+{
+  "version": "1.1.0",
+  "date": "2026-10-10",
+  "reference": [
+    "https://wedulab.com/labs/contour",
+    "https://wedulab.com/labs/water"
+  ],
+  "checks": {
+    "courseNodes": 81,
+    "narrationSteps": 243,
+    "wrongRightChecks": 324,
+    "scenes": 7,
+    "interactionUpgradeAssertions": 24,
+    "narrationSyncAssertions": 8,
+    "coreAssertions": 18,
+    "cameraUnit": "PASS",
+    "workerAPI": "PASS",
+    "packagedWorker": "PASS",
+    "mouseProvincePicking": true,
+    "doubleClickFocusZoom": 1.35,
+    "browserConsoleErrors": 0
+  },
+  "limitations": [
+    "Dependency-free Canvas2D projected relief, not WebGL or measured DEM.",
+    "Touch gestures tested with Chromium CDP emulation; physical iOS/Android and Safari not tested.",
+    "Actual student textbook edition and learning efficacy not validated."
+  ],
+  "simplifications": [
+    "Shared camera projection origin for pointer anchors and rendering.",
+    "No hard camera reset on setScene.",
+    "Audio/service-status refresh no longer replays teaching camera cues.",
+    "No new runtime dependencies."
+  ]
+}

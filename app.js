@@ -14,6 +14,7 @@
     ecology: ['流域修复实验', '流域修复投入', '沿上游到下游观察修复效果。数值是教学指数，非工程预测。', '少', '多']
   };
   let course, current, scene, stepIndex = 0, tab = 'explain', toastTimer, api = {}, db, audioUrl, audioTicket = 0;
+  let followLesson = true, motionPaused = false, narrationHeld = false;
   const serverClips = {};
   let history = [], chatBusy = false, challenge = null, interactionChoice = null, quizChoice = null;
   const audioIds = new Set();
@@ -68,7 +69,109 @@
     const list = Array.isArray(metrics) ? metrics : Object.entries(metrics).map(([label, value]) => ({label, value}));
     $('metrics').replaceChildren(...list.slice(0, 3).map(m => { const d = el('div', 'metric'); d.append(el('span', '', m.label), el('strong', '', `${m.value}${m.unit || ''}`)); return d; }));
   }
-  function updateParameter(value) { value = Math.max(0, Math.min(100, Number(value))); $('parameter').value = value; $('parameter-value').value = current?.scene === 'transport' ? (value < 34 ? '公路' : value < 67 ? '铁路' : '水运') : String(value); scene.setOptions({parameter: value}); renderMetrics(); }
+  function updateParameter(value) {
+    value = Math.max(0, Math.min(100, Number(value)));
+    $('parameter').value = value;
+    $('parameter-value').value = current?.scene === 'transport' ? (value < 34 ? '公路' : value < 67 ? '铁路' : '水运') : String(value);
+    scene.setOptions({parameter: value}); renderMetrics(); updateObservation();
+  }
+  function cueForStep() {
+    const cues = {
+      'terrain-steps': [
+        {view:'oblique', parameter:75, observe:'先从立体图找出：哪里高，哪里低？'},
+        {view:'profile', parameter:85, observe:'从西向东比较三级阶梯的高度。台阶是宏观概括。'},
+        {view:'profile', parameter:85, observe:'沿箭头看总体东流，再找阶梯过渡处的落差。'}
+      ],
+      monsoon: [
+        {view:'oblique', parameter:0, observe:'看冬季风：气流从大陆吹向海洋。'},
+        {view:'oblique', parameter:100, observe:'看夏季风：海洋水汽进入陆地，比较降雨变化。'},
+        {view:'top', parameter:100, observe:'切换冬、夏两种情景，对照风向与水汽来源。'}
+      ],
+      'river-system': [
+        {view:'oblique', observe:'找出两条支流汇入同一条干流的位置。'},
+        {view:'top', observe:'在分水岭两侧分别落雨，追踪水流终点。'},
+        {view:'oblique', observe:'比较两侧汇流路线：靠得近，也可能属于不同流域。'}
+      ]
+    };
+    return {...(cues[current.id]?.[stepIndex] || {view:stepIndex === 1 ? 'top' : 'oblique', observe:current.steps[stepIndex].title+'：'+current.question}), stage:stepIndex};
+  }
+  function showCameraMode() {
+    $('follow-lesson').setAttribute('aria-pressed', String(followLesson));
+    $('follow-lesson').textContent = followLesson ? '跟随讲解' : '恢复跟随';
+    $('camera-mode').textContent = followLesson ? `讲解 ${stepIndex + 1} / ${current.steps.length}` : '自由探索';
+    const view = scene.getState().view;
+    document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
+  }
+  function freeExplore() { followLesson = false; if(current) showCameraMode(); }
+  function applyTeachingStep() {
+    const cue = cueForStep();
+    if (followLesson && !challenge) {
+      scene.applyCue(cue);
+      if (cue.parameter !== undefined) updateParameter(cue.parameter);
+    }
+    $('observation-target').textContent = cue.observe;
+    showCameraMode(); renderMetrics(); updateObservation();
+  }
+  function syncMotion() {
+    scene?.setOptions({paused:motionPaused || narrationHeld});
+    const paused = motionPaused || narrationHeld;
+    $('motion-toggle').setAttribute('aria-pressed', String(paused));
+    $('motion-toggle').setAttribute('aria-label', paused ? '继续动态' : '暂停动态');
+    $('motion-toggle').title = paused ? '继续动态' : '暂停动态';
+    $('motion-toggle').textContent = paused ? '▷' : 'Ⅱ';
+  }
+  function updateObservation() {
+    if (!current) return;
+    const p = scene.getState().options.parameter;
+    let text = '';
+    if (current.id === 'monsoon') {
+      text = p < 45 ? '冬季风：由大陆向海洋吹，通常偏冷、偏干。' : p > 55 ? '夏季风：从海洋携带水汽，东部许多地区降雨增多。' : '中间值仅展示切换过程。用冬、夏按钮比较两个季节。';
+      document.querySelectorAll('[data-season]').forEach(b => b.setAttribute('aria-pressed', String(p === Number(b.dataset.season))));
+    } else if (current.id === 'river-system') {
+      const rain = scene.getState().experiment?.rain || [];
+      text = rain.length === 2 ? '两侧路线已显示：同一条分水岭把地表汇流分向两个流域。' : rain.includes('left') ? '左侧雨水顺坡进入支流，再汇入干流。再到另一侧试一试。' : rain.includes('right') ? '右侧雨水进入相邻流域。再到左侧落雨，对照两条路线。' : '先预测：山脊两侧的雨水会流向同一个出口吗？';
+      document.querySelectorAll('[data-rain]').forEach(b => b.setAttribute('aria-pressed', String(rain.includes(b.dataset.rain))));
+    } else if (current.id === 'terrain-steps') {
+      text = '地势总体西高东低；局部河流仍随具体地形转弯。高度经过夸张，非实测剖面。';
+    }
+    $('experiment-observation').textContent = text;
+    $('experiment-observation').hidden = !text;
+    if(!followLesson && text) $('observation-target').textContent = text;
+  }
+  function renderExperimentActions() {
+    const host = $('experiment-actions'); host.replaceChildren();
+    const button = (label, fn) => { const b = el('button', '', label); b.onclick = fn; host.append(b); return b; };
+    if (current.id === 'terrain-steps') {
+      button('看全国地势', () => { freeExplore(); scene.setView('oblique'); showCameraMode(); });
+      button('看西—东剖面', () => { freeExplore(); scene.setView('profile'); showCameraMode(); });
+    } else if (current.id === 'monsoon') {
+      for (const [label, value] of [['冬季风',0],['夏季风',100]]) {
+        const b = button(label, () => { freeExplore(); updateParameter(value); }); b.dataset.season = value;
+      }
+    } else if (current.id === 'river-system') {
+      for (const [label, side] of [['左侧落雨','left'],['右侧落雨','right']]) {
+        const b = button(label, () => { freeExplore(); scene.experiment('rain-'+side); updateObservation(); }); b.dataset.rain = side;
+      }
+      button('清除雨迹', () => { scene.experiment('clear-rain'); updateObservation(); });
+    }
+    host.hidden = !host.children.length; updateObservation();
+  }
+  async function toggleFullscreen() {
+    const stage = document.querySelector('.stage');
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else if (document.body.classList.contains('focus-stage')) document.body.classList.remove('focus-stage');
+      else if (stage.requestFullscreen) await stage.requestFullscreen();
+      else document.body.classList.add('focus-stage');
+    } catch (_) { document.body.classList.toggle('focus-stage'); }
+    updateFullscreen();
+  }
+  function updateFullscreen() {
+    const active = Boolean(document.fullscreenElement) || document.body.classList.contains('focus-stage');
+    $('fullscreen-scene').setAttribute('aria-pressed', String(active));
+    $('fullscreen-scene').setAttribute('aria-label', active ? '退出全屏沙盘' : '全屏沙盘');
+    scene.resize();
+  }
   function setupScene() {
     const isWatershed = current.id === 'river-system';
     const meta = isWatershed ? ['水系与分水岭', '转动观察两侧汇流', '追踪两条支流汇入干流，再沿金色山脊线比较两侧水流方向。', '', ''] : sceneMeta[current.scene] || sceneMeta.china;
@@ -82,7 +185,7 @@
   }
   function selectNode(id) {
     const node = course.nodes.find(n => n.id === id); if (!node) return;
-    stopAudio(); current = node; stepIndex = 0; interactionChoice = null; quizChoice = null; challenge = null;
+    stopAudio(); current = node; stepIndex = 0; followLesson = true; motionPaused = false; narrationHeld = false; interactionChoice = null; quizChoice = null; challenge = null;
     $('province-info').hidden = true; $('challenge-info').hidden = true;
     addUnique(state.visited, id); persist();
     const chapter = course.chapters.find(c => c.id === node.chapter), section = chapter.sections.find(s => s.id === node.section);
@@ -95,12 +198,13 @@
     $('related-nodes').replaceChildren(...node.related.slice(0, 3).map(id => course.nodes.find(n => n.id === id)).filter(Boolean).map(n => { const b = el('button', '', n.title + ' ↗'); b.onclick = () => selectNode(n.id); return b; }));
     $('suggested-questions').replaceChildren(...[node.question, `能用生活中的例子解释“${node.title}”吗？`, `这个知识点和${course.nodes.find(n => n.id === node.related[0])?.title || '自然环境'}有什么联系？`].map(q => { const b = el('button', '', q); b.onclick = () => { $('ask-input').value = q; $('ask-input').focus(); }; return b; }));
     $('note-topic').textContent = `当前探索：${node.title}`;
-    setupScene(); renderStep(); renderInteraction(); renderQuiz(); renderNav(); switchTab('explain');
+    setupScene(); scene.experiment('clear-rain'); syncMotion(); renderStep(); renderExperimentActions(); renderInteraction(); renderQuiz(); renderNav(); switchTab('explain');
     window.GeographyLabs.mount(node, $('mini-lab-host'));
     $('sidebar').classList.remove('open');
     const active = document.querySelector('.node-button.active'); if (active && !$('search').value) active.scrollIntoView({block:'nearest'});
   }
-  function renderStep() {
+  function renderStep(syncScene = true) {
+    if (syncScene) applyTeachingStep();
     const step = current.steps[stepIndex];
     $('step-number').textContent = `观察 ${String(stepIndex + 1).padStart(2, '0')} / ${String(current.steps.length).padStart(2, '0')}`;
     $('step-title').textContent = step.title; $('step-text').textContent = step.text;
@@ -119,7 +223,7 @@
     $('interaction-feedback').className = 'feedback';
     $('interaction-options').replaceChildren(...interaction.options.map((o, i) => { const b = el('button', '', o.label); b.onclick = () => {
       interactionChoice = i;
-      if (interaction.affectsScene === true) updateParameter(o.value);
+      if (interaction.affectsScene === true) { freeExplore(); updateParameter(o.value); }
       [...$('interaction-options').children].forEach((x, j) => { x.classList.toggle('selected', i === j); x.classList.toggle('correct', i === j && i === interaction.answer); });
       const correct = i === interaction.answer;
       $('interaction-feedback').textContent = (correct ? '理解正确。' : '再想一步。') + o.feedback;
@@ -150,7 +254,7 @@
   }
   function startChallenge() {
     const provinces = window.CHINA_PROVINCES || []; if (!provinces.length) return toast('省区数据未加载，请刷新。');
-    scene.setScene('china'); scene.setOptions({layer:'provinces', labels:false, parameter:50}); $('layer').value = 'provinces'; $('layer').disabled = false; $('labels-toggle').setAttribute('aria-pressed', 'false');
+    stopAudio(); freeExplore(); scene.setScene('china'); scene.setOptions({focus:'', layer:'provinces', labels:false, parameter:50}); scene.setView('oblique'); showCameraMode(); $('observation-target').textContent = '根据名称寻找省区，先比较南北和东西位置。'; $('layer').value = 'provinces'; $('layer').disabled = false; $('labels-toggle').setAttribute('aria-pressed', 'false');
     const untested = provinces.filter(p => !state.provincePassed.includes(String(p.id)) && p.id !== challenge?.id); const pool = untested.length ? untested : provinces.filter(p => p.id !== challenge?.id);
     challenge = pool[Math.floor(Math.random() * pool.length)] || provinces[0];
     $('challenge-title').textContent = `请在地图上找到：${challenge.name}`; $('challenge-feedback').textContent = `已找到 ${state.provincePassed.length} / ${provinces.length} 个省区。点击地图作答，可拖动和缩放。`;
@@ -178,7 +282,7 @@
   }
   function clip(cue) { return new Promise((resolve, reject) => { if (!db) return reject(new Error('音频存储不可用')); const q = db.transaction('clips').objectStore('clips').get(cue); q.onsuccess = () => resolve(q.result); q.onerror = () => reject(q.error); }); }
   function saveClip(record) { return new Promise((resolve, reject) => { if (!db) return reject(new Error('音频存储不可用')); const tx = db.transaction('clips', 'readwrite'); tx.objectStore('clips').put(record); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error || new Error('音频保存中断')); }); }
-  function stopAudio() { audioTicket++; const a = $('narration-audio'); a.pause(); a.removeAttribute('src'); a.load(); a.hidden = true; if (audioUrl) { URL.revokeObjectURL(audioUrl); audioUrl = undefined; } }
+  function stopAudio() { narrationHeld = false; syncMotion(); audioTicket++; const a = $('narration-audio'); a.pause(); a.removeAttribute('src'); a.load(); a.hidden = true; if (audioUrl) { URL.revokeObjectURL(audioUrl); audioUrl = undefined; } }
   async function playAudio() {
     const cue = current.steps[stepIndex].cue;
     if (!audioIds.has(cue) && !serverClips[cue] && !api.tts?.configured) { openWorkshop(); return; }
@@ -229,7 +333,7 @@
       try { await saveClip({cue, blob:file, filename:file.name}); audioIds.add(cue); ok++; }
       catch (_) { skipped.push(file.name + '（未保存）'); }
     }
-    stopAudio(); renderStep(); openWorkshop();
+    stopAudio(); renderStep(false); openWorkshop();
     $('audio-import-status').textContent = `已导入 ${ok} 段。${skipped.length ? '未匹配或未保存：' + skipped.slice(0, 8).join('、') + '。请核对 cue 文件名，单文件需小于50MB。' : '返回课程即可播放，刷新页面后仍保留。'}`;
     $('audio-files').value = '';
   }
@@ -259,20 +363,29 @@
     $('search').addEventListener('input', renderNav);
     $('menu-toggle').onclick = () => $('sidebar').classList.toggle('open'); $('menu-close').onclick = () => $('sidebar').classList.remove('open');
     ['explain','quiz','ask'].forEach(t => $(`tab-${t}`).onclick = () => switchTab(t));
-    $('parameter').oninput = e => updateParameter(e.target.value); $('reset-experiment').onclick = () => { interactionChoice = null; challenge = null; $('challenge-info').hidden = true; setupScene(); renderInteraction(); };
-    $('layer').onchange = e => { scene.setOptions({layer:e.target.value}); renderMetrics(); };
-    $('zoom-in').onclick = () => scene.zoom(.15); $('zoom-out').onclick = () => scene.zoom(-.15); $('reset-view').onclick = () => scene.reset();
+    $('parameter').oninput = e => { freeExplore(); updateParameter(e.target.value); }; $('reset-experiment').onclick = () => { stopAudio(); interactionChoice = null; challenge = null; followLesson = true; motionPaused = false; $('challenge-info').hidden = true; setupScene(); scene.experiment('clear-rain'); syncMotion(); applyTeachingStep(); renderExperimentActions(); renderInteraction(); };
+    $('layer').onchange = e => { freeExplore(); scene.setOptions({layer:e.target.value}); renderMetrics(); };
+    $('zoom-in').onclick = () => { freeExplore(); scene.zoom(.15); }; $('zoom-out').onclick = () => { freeExplore(); scene.zoom(-.15); }; $('reset-view').onclick = () => { freeExplore(); scene.reset(); showCameraMode(); };
+    document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => { freeExplore(); scene.setView(b.dataset.view); showCameraMode(); });
+    document.querySelectorAll('[data-explore]').forEach(b => b.onclick = () => selectNode(b.dataset.explore));
+    $('follow-lesson').onclick = () => { followLesson = !followLesson; if(followLesson) applyTeachingStep(); else showCameraMode(); };
+    $('motion-toggle').onclick = () => { motionPaused = !(motionPaused || narrationHeld); narrationHeld = false; syncMotion(); };
+    $('fullscreen-scene').onclick = toggleFullscreen;
+    document.addEventListener('fullscreenchange', updateFullscreen);
+    $('gesture-hint').textContent = matchMedia('(pointer:coarse)').matches ? '单指旋转 · 双指缩放 / 平移' : '拖动旋转 · 滚轮缩放 · 右键平移';
     $('labels-toggle').onclick = () => { const labels = $('labels-toggle').getAttribute('aria-pressed') !== 'true'; $('labels-toggle').setAttribute('aria-pressed', String(labels)); scene.setOptions({labels}); };
-    $('scene').addEventListener('keydown', () => requestAnimationFrame(() => $('labels-toggle').setAttribute('aria-pressed', String(scene.getState().options.labels))));
+    $('scene').addEventListener('keydown', () => requestAnimationFrame(() => { $('labels-toggle').setAttribute('aria-pressed', String(scene.getState().options.labels)); showCameraMode(); }));
+    $('scene').addEventListener('pointerup', () => showCameraMode());
     $('step-prev').onclick = () => { stopAudio(); stepIndex = Math.max(0, stepIndex-1); renderStep(); }; $('step-next').onclick = () => { stopAudio(); stepIndex = Math.min(current.steps.length-1, stepIndex+1); renderStep(); };
     $('play-narration').onclick = playAudio;
     $('narration-audio').onended = () => {
+      narrationHeld = false; syncMotion();
       $('play-narration').textContent = '▷ 再听一遍'; $('audio-status').textContent = '这一段已播完，可以进入下一段。';
       if ($('continuous-audio').checked && stepIndex < current.steps.length - 1) { stopAudio(); stepIndex++; renderStep(); playAudio(); }
       else if ($('continuous-audio').checked) $('audio-status').textContent = '本知识点讲解完毕，动手试试，再做一道思考题。';
     };
-    $('narration-audio').onpause = () => { if (audioUrl) $('play-narration').textContent = '▷ 继续讲解'; };
-    $('narration-audio').onplay = () => { $('play-narration').textContent = 'Ⅱ 暂停讲解'; };
+    $('narration-audio').onpause = () => { const a = $('narration-audio'); if(a.getAttribute('src') && !a.ended) { narrationHeld = true; syncMotion(); $('play-narration').textContent = '▷ 继续讲解'; } };
+    $('narration-audio').onplay = () => { narrationHeld = false; syncMotion(); $('play-narration').textContent = 'Ⅱ 暂停讲解'; };
     $('go-quiz').onclick = () => switchTab('quiz'); $('retry-quiz').onclick = () => { quizChoice = null; renderQuiz(); };
     $('next-lesson').onclick = nextLesson; $('quiz-next').onclick = nextLesson;
     $('province-challenge').onclick = startChallenge; $('challenge-next').onclick = startChallenge;
@@ -291,18 +404,18 @@
     $('ask-form').onsubmit = askTeacher;
     $('ask-input').onkeydown = e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('ask-form').requestSubmit(); } };
     $('clear-chat').onclick = () => { history = []; $('chat-messages').replaceChildren(); };
-    document.addEventListener('keydown', e => { if (/input|textarea|select/i.test(e.target.tagName) || document.querySelector('dialog[open]')) return; if (e.key === '/') { e.preventDefault(); $('sidebar').classList.add('open'); $('search').focus(); } if (e.key.toLowerCase() === 'r') scene.reset(); });
+    document.addEventListener('keydown', e => { if (/input|textarea|select/i.test(e.target.tagName) || document.querySelector('dialog[open]')) return; if (e.key === '/') { e.preventDefault(); $('sidebar').classList.add('open'); $('search').focus(); } if (e.key.toLowerCase() === 'r') { freeExplore(); scene.reset(); showCameraMode(); } if(e.key.toLowerCase() === 'f') toggleFullscreen(); if(e.key === 'Escape' && document.body.classList.contains('focus-stage')) { document.body.classList.remove('focus-stage'); updateFullscreen(); } });
   }
   async function init() {
     try {
       const response = await fetch('/curriculum.json'); if (!response.ok) throw new Error('课程文件未找到'); course = await response.json();
       const ids = new Set(course.nodes.map(n => n.id)); for (const key of ['visited', 'interactionPassed', 'quizPassed']) state[key] = [...new Set(state[key].filter(id => ids.has(id)))];
       if (!window.ChinaScene) throw new Error('沙盘渲染文件未完整载入');
-      scene = new window.ChinaScene($('scene'), {onSelect:selectProvince});
+      scene = new window.ChinaScene($('scene'), {onSelect:selectProvince, onInteract:freeExplore});
       try { await initAudioDB(); } catch (_) { toast('当前浏览器无法保存音频，文字课程仍可使用。'); }
       wire(); selectNode(ids.has(saved.lastNode) ? saved.lastNode : course.nodes[0].id); $('loading').hidden = true;
-      window.geographyApp = {getState:() => ({nodeId:current.id, step:stepIndex, tab, visited:[...state.visited], mastered:course.nodes.filter(n => mastered(n.id)).map(n => n.id), interactionChoice, quizChoice, audioIds:[...audioIds], notes:state.notes.length, challenge:challenge?.id || null, scene:scene.getState()}), selectNode, getCourse:() => course};
-      try { const r = await fetch('/api/status'); api = await r.json(); Object.assign(serverClips, api.tts?.clips || {}); renderStep(); $('ai-status').textContent = api.configured ? '已配置 · 提问时连接课程老师' : '问答尚未配置 · 可先使用课程与练习'; } catch (_) { $('ai-status').textContent = '问答连接不可用 · 请检查网络后重试'; }
+      window.geographyApp = {getState:() => ({nodeId:current.id, step:stepIndex, tab, followLesson, motionPaused, visited:[...state.visited], mastered:course.nodes.filter(n => mastered(n.id)).map(n => n.id), interactionChoice, quizChoice, audioIds:[...audioIds], notes:state.notes.length, challenge:challenge?.id || null, scene:scene.getState()}), selectNode, getCourse:() => course};
+      try { const r = await fetch('/api/status'); api = await r.json(); Object.assign(serverClips, api.tts?.clips || {}); renderStep(false); $('ai-status').textContent = api.configured ? '已配置 · 提问时连接课程老师' : '问答尚未配置 · 可先使用课程与练习'; } catch (_) { $('ai-status').textContent = '问答连接不可用 · 请检查网络后重试'; }
     } catch (err) { $('loading').textContent = `${err.message}。请使用“启动地理探索课.command”重新打开。`; }
   }
   init();

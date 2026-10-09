@@ -68,7 +68,7 @@ async (page) => {
   await page.locator('#coverage .dialog-close').click();
   await page.setViewportSize({width:390,height:844});
   await page.evaluate(()=>scrollTo(0,0));
-  check(await page.evaluate(()=>document.documentElement.scrollWidth===window.innerWidth),'mobile has no horizontal overflow');
+  check(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),'mobile has no horizontal overflow');
   await page.locator('#menu-toggle').click();
   check(await page.locator('#sidebar').isVisible(),'mobile curriculum drawer opens');
   await page.locator('#menu-close').click();

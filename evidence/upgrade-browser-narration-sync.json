@@ -1,0 +1,14 @@
+{
+  "checks": [
+    "late service status cannot reset experiment or camera mode",
+    "bundled Chinese narration plays with real duration",
+    "pause narration also pauses scene motion",
+    "resume narration resumes scene motion",
+    "continuous narration respects free camera",
+    "continuous narration advances to matching next clip",
+    "late old narration cannot play or steal new lesson",
+    "no browser runtime errors"
+  ],
+  "errors": [],
+  "audioSeconds": 15.576
+}

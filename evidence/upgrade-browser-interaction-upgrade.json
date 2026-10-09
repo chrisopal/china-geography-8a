@@ -1,0 +1,40 @@
+{
+  "checks": [
+    "enter topic enables follow and its teaching cue",
+    "next narration step changes view and teaching stage",
+    "drag gives student camera control",
+    "next narration cannot steal free camera",
+    "resume follow applies current step",
+    "top preset is truly top down",
+    "wheel zoom anchors off-center pointer",
+    "right drag pans without rotation",
+    "keyboard preset works",
+    "keyboard pan works",
+    "pause freezes moving phenomena",
+    "paused pixels remain stationary",
+    "winter and summer change picture and explanation even paused",
+    "two rainfall routes keep downhill flow to different basins",
+    "watershed routes end in distinct basins",
+    "experiment reset clears rain and restores teaching",
+    "fullscreen enters",
+    "fullscreen exits",
+    "Chromium emulated two-finger gesture zooms and pans",
+    "pinch releases all pointers without accidental selection",
+    "touch cancel releases controls",
+    "390px mobile layout has no horizontal overflow",
+    "reduced-motion settles without animation",
+    "no browser runtime errors"
+  ],
+  "errors": [],
+  "performance": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "viewport": [
+      1500,
+      1050
+    ],
+    "samples": 75,
+    "medianFrameMs": 8.300000000000182,
+    "p95FrameMs": 9.900000000000546,
+    "note": "Chromium desktop preview; frame intervals, not a GPU benchmark."
+  }
+}
