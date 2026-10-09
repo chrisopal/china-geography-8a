@@ -1,0 +1,20 @@
+{
+  "score": 92,
+  "verdict": "pass",
+  "category_match": true,
+  "checked_at": "2026-10-10T00:17:37+08:00",
+  "evidence": [
+    "evidence/desktop-final.png",
+    "evidence/mobile-mountains.png",
+    "evidence/focus-river-system.png"
+  ],
+  "differences": [
+    "全国高程和专题模型为教学示意，未使用真实DEM。",
+    "手机端采用纵向学习流程，地图细节可缩放查看。"
+  ],
+  "suggestions": [
+    "拿到孩子实际使用的教材后再核对版次、页码和活动名称。"
+  ],
+  "reasoning": "桌面三栏层级清楚，手机端地图正常呈现且无横向溢出；山脉位置突出，分水岭模型能区分支流、干流和相邻流域。无效滑杆已隐藏，控制说明与模型一致。",
+  "next_actions": []
+}

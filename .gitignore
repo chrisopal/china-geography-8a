@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+*.key
+__pycache__/
+.DS_Store
+*.log
+
+dist/
+.sites-local/
+.sites-checkout/
+*.tar.gz
+
+.playwright-cli/

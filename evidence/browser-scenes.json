@@ -1,0 +1,55 @@
+{
+  "scenes": [
+    {
+      "scene": "china",
+      "pixelChange": true,
+      "zoom": true,
+      "labels": true,
+      "metrics": "省级行政区\n34个\n地势格局\n西高东低\n当前强调\n100%"
+    },
+    {
+      "scene": "monsoon",
+      "pixelChange": true,
+      "zoom": true,
+      "labels": true,
+      "metrics": "季节情景\n夏季风\n湿润气流\n100示意指数\n东部降雨\n95示意指数"
+    },
+    {
+      "scene": "river",
+      "pixelChange": true,
+      "zoom": true,
+      "labels": true,
+      "metrics": "植被覆盖\n100%\n产沙强度\n15示意指数\n下游淤积\n18示意指数"
+    },
+    {
+      "scene": "land",
+      "pixelChange": true,
+      "zoom": true,
+      "labels": true,
+      "metrics": "坡地保护\n100示意指数\n坡地林草\n90示意比例 %\n侵蚀风险\n15示意指数"
+    },
+    {
+      "scene": "resources",
+      "pixelChange": true,
+      "zoom": true,
+      "labels": true,
+      "metrics": "可再生能源\n100示意占比 %\n化石能源消耗\n0示意指数\n供需平衡\n需储能调节"
+    },
+    {
+      "scene": "transport",
+      "pixelChange": true,
+      "zoom": true,
+      "labels": true,
+      "metrics": "当前运输方式\n水运\n任务\n内河沿线大宗货物\n速度 / 运量\n较慢 / 大"
+    },
+    {
+      "scene": "ecology",
+      "pixelChange": true,
+      "zoom": true,
+      "labels": true,
+      "metrics": "修复投入\n100示意指数\n水体清洁度\n93示意指数\n水土保持\n92示意指数"
+    }
+  ],
+  "offlineLoadedInteraction": true,
+  "errors": []
+}

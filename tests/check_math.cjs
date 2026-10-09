@@ -1,0 +1,16 @@
+const fs = require('node:fs');
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const sandbox = {window:{}};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../labs.js'),'utf8'),sandbox);
+const lab = sandbox.window.GeographyLabs;
+assert.equal(lab.localMinutes(120),720);
+assert.equal(lab.localMinutes(135),780);
+assert.equal(lab.localMinutes(75),540);
+assert.equal(lab.flow(10,2,1),20);
+assert.equal(lab.flow(10,2,2),40);
+assert.ok(Math.abs(lab.density(592.4,72.23)-8.20157829)<0.00001);
+assert.ok(lab.solar(35,23.44)>lab.solar(35,-23.44));
+assert.ok(lab.solar(53,-23.44)<lab.solar(18,-23.44));
+console.log('PASS: local solar time, population density, discharge, noon solar elevation.');

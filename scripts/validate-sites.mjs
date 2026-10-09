@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const source = await readFile(new URL('../dist/server/index.js',import.meta.url),'utf8');
+const manifest = JSON.parse(await readFile(new URL('../dist/.openai/hosting.json',import.meta.url),'utf8'));
+assert.ok(manifest.project_id);
+assert.ok(!/sk-or-v1-[a-zA-Z0-9]{20,}/.test(source),'Credential in bundle');
+const {default:worker} = await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const env = {};
+const index = await worker.fetch(new Request('https://example.test/'),env,{});
+assert.equal(index.status,200);
+assert.match(await index.text(),/中国地理探索课/);
+const course = await worker.fetch(new Request('https://example.test/curriculum.json'),env,{});
+assert.equal((await course.json()).nodes.length,81);
+const forbidden = await worker.fetch(new Request('https://example.test/server.py'),env,{});
+assert.equal(forbidden.status,404);
+console.log('PASS: packaged ESM serves classroom and 81 nodes, excludes server source and credentials');

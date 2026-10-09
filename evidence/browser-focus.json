@@ -1,0 +1,35 @@
+{
+  "focuses": [
+    {
+      "id": "river-system",
+      "focus": "river-system",
+      "scene": "river"
+    },
+    {
+      "id": "plateaus",
+      "focus": "plateaus",
+      "scene": "china"
+    },
+    {
+      "id": "basins",
+      "focus": "basins",
+      "scene": "china"
+    },
+    {
+      "id": "plains",
+      "focus": "plains",
+      "scene": "china"
+    },
+    {
+      "id": "mountain-directions",
+      "focus": "mountain-directions",
+      "scene": "china"
+    },
+    {
+      "id": "step-boundaries",
+      "focus": "step-boundaries",
+      "scene": "china"
+    }
+  ],
+  "mobileNoOverflow": true
+}

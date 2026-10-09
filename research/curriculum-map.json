@@ -1,0 +1,1700 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-10",
+  "editionStatus": "provisional-user-textbook-unconfirmed",
+  "catalogReference": "toc-preview",
+  "counts": {
+    "chapters": 5,
+    "sectionsAndActivities": 20,
+    "nodes": 81,
+    "narrationSteps": 243,
+    "interactions": 81,
+    "quizzes": 81,
+    "sources": 34,
+    "directedRelations": 246
+  },
+  "coverage": [
+    {
+      "chapter": "c1",
+      "title": "第一章 从世界看中国",
+      "sections": [
+        {
+          "id": "c1s1",
+          "title": "疆域",
+          "page": 2,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "location",
+            "latitude",
+            "longitude",
+            "territory-size",
+            "coast",
+            "neighbors",
+            "administration",
+            "province-memory"
+          ],
+          "nodeCount": 8
+        },
+        {
+          "id": "c1s2",
+          "title": "人口",
+          "page": 13,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "population-size",
+            "population-density",
+            "population-structure"
+          ],
+          "nodeCount": 3
+        },
+        {
+          "id": "c1s3",
+          "title": "民族",
+          "page": 18,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "ethnic-diversity",
+            "ethnic-pattern"
+          ],
+          "nodeCount": 2
+        },
+        {
+          "id": "c1x",
+          "title": "学习与探究：中国的海洋国土",
+          "page": 22,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "maritime-rights"
+          ],
+          "nodeCount": 1
+        }
+      ]
+    },
+    {
+      "chapter": "c2",
+      "title": "第二章 中国的自然环境",
+      "sections": [
+        {
+          "id": "c2s1",
+          "title": "地形",
+          "page": 26,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "terrain-types",
+            "terrain-steps",
+            "step-boundaries",
+            "mountain-directions",
+            "plateaus",
+            "basins",
+            "plains",
+            "terrain-influence"
+          ],
+          "nodeCount": 8
+        },
+        {
+          "id": "c2s2",
+          "title": "气候",
+          "page": 33,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "weather-climate",
+            "winter-temperature",
+            "climate-altitude",
+            "temperature-belts",
+            "rainfall-pattern",
+            "dry-wet",
+            "monsoon",
+            "rain-belt",
+            "climate-types"
+          ],
+          "nodeCount": 9
+        },
+        {
+          "id": "c2s3",
+          "title": "河流与湖泊",
+          "page": 44,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "river-system",
+            "river-regime",
+            "inland-rivers",
+            "yangtze-course",
+            "hydropower",
+            "yellow-course",
+            "yellow-sediment",
+            "lakes"
+          ],
+          "nodeCount": 8
+        },
+        {
+          "id": "c2x",
+          "title": "跨学科主题：探究河流流量与水位、流速的关系",
+          "page": 55,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "river-lab",
+            "sediment-lab"
+          ],
+          "nodeCount": 2
+        }
+      ]
+    },
+    {
+      "chapter": "c3",
+      "title": "第三章 中国的自然资源",
+      "sections": [
+        {
+          "id": "c3s1",
+          "title": "土地资源",
+          "page": 60,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "resource-types",
+            "land-types",
+            "land-distribution",
+            "land-protection",
+            "carrying-capacity"
+          ],
+          "nodeCount": 5
+        },
+        {
+          "id": "c3s2",
+          "title": "水资源",
+          "page": 66,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "water-distribution",
+            "water-engineering",
+            "water-saving",
+            "water-pollution"
+          ],
+          "nodeCount": 4
+        },
+        {
+          "id": "c3s3",
+          "title": "矿产资源",
+          "page": 72,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "mineral-types",
+            "mineral-distribution",
+            "energy-transition"
+          ],
+          "nodeCount": 3
+        },
+        {
+          "id": "c3s4",
+          "title": "海洋资源",
+          "page": 77,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "marine-types",
+            "marine-fishing",
+            "marine-protection"
+          ],
+          "nodeCount": 3
+        },
+        {
+          "id": "c3x",
+          "title": "跨学科主题：认识我国的世界灌溉工程遗产",
+          "page": 84,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "irrigation-heritage"
+          ],
+          "nodeCount": 1
+        }
+      ]
+    },
+    {
+      "chapter": "c4",
+      "title": "第四章 中国的经济发展",
+      "sections": [
+        {
+          "id": "c4s1",
+          "title": "农业",
+          "page": 88,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "agriculture-sectors",
+            "agriculture-location",
+            "crop-pattern",
+            "agriculture-technology",
+            "farmland-security"
+          ],
+          "nodeCount": 5
+        },
+        {
+          "id": "c4s2",
+          "title": "工业",
+          "page": 95,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "industry-chain",
+            "industry-location",
+            "industrial-regions",
+            "hightech",
+            "industry-green"
+          ],
+          "nodeCount": 5
+        },
+        {
+          "id": "c4s3",
+          "title": "交通运输",
+          "page": 103,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "transport-modes",
+            "transport-choice",
+            "transport-network"
+          ],
+          "nodeCount": 3
+        },
+        {
+          "id": "c4x",
+          "title": "学习与探究：百年京张展新颜",
+          "page": 111,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "jingzhang"
+          ],
+          "nodeCount": 1
+        }
+      ]
+    },
+    {
+      "chapter": "c5",
+      "title": "第五章 建设美丽中国",
+      "sections": [
+        {
+          "id": "c5s1",
+          "title": "自然灾害与防灾减灾",
+          "page": 114,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "disaster-risk",
+            "cold-typhoon",
+            "flood-risk",
+            "drought-risk",
+            "geological-hazards"
+          ],
+          "nodeCount": 5
+        },
+        {
+          "id": "c5s2",
+          "title": "环境保护与发展",
+          "page": 122,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "green-development",
+            "watershed-restoration",
+            "desertification",
+            "wetland-protection"
+          ],
+          "nodeCount": 4
+        },
+        {
+          "id": "c5x",
+          "title": "学习与探究：中国的自然保护地",
+          "page": 128,
+          "pageStatus": "provisional-preview-91246419",
+          "nodeIds": [
+            "nature-parks"
+          ],
+          "nodeCount": 1
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "from": "location",
+      "to": "latitude",
+      "type": "learning-connection"
+    },
+    {
+      "from": "location",
+      "to": "coast",
+      "type": "learning-connection"
+    },
+    {
+      "from": "location",
+      "to": "monsoon",
+      "type": "learning-connection"
+    },
+    {
+      "from": "latitude",
+      "to": "winter-temperature",
+      "type": "learning-connection"
+    },
+    {
+      "from": "latitude",
+      "to": "temperature-belts",
+      "type": "learning-connection"
+    },
+    {
+      "from": "latitude",
+      "to": "agriculture-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "longitude",
+      "to": "location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "longitude",
+      "to": "latitude",
+      "type": "learning-connection"
+    },
+    {
+      "from": "longitude",
+      "to": "transport-network",
+      "type": "learning-connection"
+    },
+    {
+      "from": "territory-size",
+      "to": "land-types",
+      "type": "learning-connection"
+    },
+    {
+      "from": "territory-size",
+      "to": "carrying-capacity",
+      "type": "learning-connection"
+    },
+    {
+      "from": "territory-size",
+      "to": "terrain-types",
+      "type": "learning-connection"
+    },
+    {
+      "from": "coast",
+      "to": "maritime-rights",
+      "type": "learning-connection"
+    },
+    {
+      "from": "coast",
+      "to": "marine-types",
+      "type": "learning-connection"
+    },
+    {
+      "from": "coast",
+      "to": "transport-modes",
+      "type": "learning-connection"
+    },
+    {
+      "from": "neighbors",
+      "to": "location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "neighbors",
+      "to": "terrain-influence",
+      "type": "learning-connection"
+    },
+    {
+      "from": "neighbors",
+      "to": "transport-network",
+      "type": "learning-connection"
+    },
+    {
+      "from": "administration",
+      "to": "province-memory",
+      "type": "learning-connection"
+    },
+    {
+      "from": "administration",
+      "to": "ethnic-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "province-memory",
+      "to": "administration",
+      "type": "learning-connection"
+    },
+    {
+      "from": "province-memory",
+      "to": "transport-network",
+      "type": "learning-connection"
+    },
+    {
+      "from": "population-size",
+      "to": "population-density",
+      "type": "learning-connection"
+    },
+    {
+      "from": "population-size",
+      "to": "population-structure",
+      "type": "learning-connection"
+    },
+    {
+      "from": "population-size",
+      "to": "carrying-capacity",
+      "type": "learning-connection"
+    },
+    {
+      "from": "population-density",
+      "to": "carrying-capacity",
+      "type": "learning-connection"
+    },
+    {
+      "from": "population-density",
+      "to": "terrain-influence",
+      "type": "learning-connection"
+    },
+    {
+      "from": "population-density",
+      "to": "agriculture-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "population-structure",
+      "to": "population-size",
+      "type": "learning-connection"
+    },
+    {
+      "from": "population-structure",
+      "to": "transport-network",
+      "type": "learning-connection"
+    },
+    {
+      "from": "population-structure",
+      "to": "industry-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "ethnic-diversity",
+      "to": "ethnic-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "ethnic-diversity",
+      "to": "administration",
+      "type": "learning-connection"
+    },
+    {
+      "from": "ethnic-pattern",
+      "to": "ethnic-diversity",
+      "type": "learning-connection"
+    },
+    {
+      "from": "ethnic-pattern",
+      "to": "population-density",
+      "type": "learning-connection"
+    },
+    {
+      "from": "ethnic-pattern",
+      "to": "administration",
+      "type": "learning-connection"
+    },
+    {
+      "from": "maritime-rights",
+      "to": "coast",
+      "type": "learning-connection"
+    },
+    {
+      "from": "maritime-rights",
+      "to": "marine-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "terrain-types",
+      "to": "terrain-steps",
+      "type": "learning-connection"
+    },
+    {
+      "from": "terrain-types",
+      "to": "basins",
+      "type": "learning-connection"
+    },
+    {
+      "from": "terrain-types",
+      "to": "land-types",
+      "type": "learning-connection"
+    },
+    {
+      "from": "terrain-steps",
+      "to": "step-boundaries",
+      "type": "learning-connection"
+    },
+    {
+      "from": "terrain-steps",
+      "to": "terrain-influence",
+      "type": "learning-connection"
+    },
+    {
+      "from": "terrain-steps",
+      "to": "hydropower",
+      "type": "learning-connection"
+    },
+    {
+      "from": "step-boundaries",
+      "to": "mountain-directions",
+      "type": "learning-connection"
+    },
+    {
+      "from": "step-boundaries",
+      "to": "plateaus",
+      "type": "learning-connection"
+    },
+    {
+      "from": "step-boundaries",
+      "to": "plains",
+      "type": "learning-connection"
+    },
+    {
+      "from": "mountain-directions",
+      "to": "basins",
+      "type": "learning-connection"
+    },
+    {
+      "from": "mountain-directions",
+      "to": "step-boundaries",
+      "type": "learning-connection"
+    },
+    {
+      "from": "mountain-directions",
+      "to": "terrain-influence",
+      "type": "learning-connection"
+    },
+    {
+      "from": "plateaus",
+      "to": "yellow-sediment",
+      "type": "learning-connection"
+    },
+    {
+      "from": "plateaus",
+      "to": "land-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "plateaus",
+      "to": "climate-altitude",
+      "type": "learning-connection"
+    },
+    {
+      "from": "basins",
+      "to": "mountain-directions",
+      "type": "learning-connection"
+    },
+    {
+      "from": "basins",
+      "to": "rainfall-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "basins",
+      "to": "inland-rivers",
+      "type": "learning-connection"
+    },
+    {
+      "from": "plains",
+      "to": "agriculture-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "plains",
+      "to": "flood-risk",
+      "type": "learning-connection"
+    },
+    {
+      "from": "plains",
+      "to": "lakes",
+      "type": "learning-connection"
+    },
+    {
+      "from": "terrain-influence",
+      "to": "population-density",
+      "type": "learning-connection"
+    },
+    {
+      "from": "terrain-influence",
+      "to": "transport-network",
+      "type": "learning-connection"
+    },
+    {
+      "from": "terrain-influence",
+      "to": "jingzhang",
+      "type": "learning-connection"
+    },
+    {
+      "from": "weather-climate",
+      "to": "rainfall-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "weather-climate",
+      "to": "winter-temperature",
+      "type": "learning-connection"
+    },
+    {
+      "from": "weather-climate",
+      "to": "climate-types",
+      "type": "learning-connection"
+    },
+    {
+      "from": "winter-temperature",
+      "to": "latitude",
+      "type": "learning-connection"
+    },
+    {
+      "from": "winter-temperature",
+      "to": "climate-types",
+      "type": "learning-connection"
+    },
+    {
+      "from": "winter-temperature",
+      "to": "temperature-belts",
+      "type": "learning-connection"
+    },
+    {
+      "from": "climate-altitude",
+      "to": "plateaus",
+      "type": "learning-connection"
+    },
+    {
+      "from": "climate-altitude",
+      "to": "temperature-belts",
+      "type": "learning-connection"
+    },
+    {
+      "from": "climate-altitude",
+      "to": "agriculture-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "temperature-belts",
+      "to": "latitude",
+      "type": "learning-connection"
+    },
+    {
+      "from": "temperature-belts",
+      "to": "crop-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "temperature-belts",
+      "to": "agriculture-technology",
+      "type": "learning-connection"
+    },
+    {
+      "from": "rainfall-pattern",
+      "to": "monsoon",
+      "type": "learning-connection"
+    },
+    {
+      "from": "rainfall-pattern",
+      "to": "water-distribution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "rainfall-pattern",
+      "to": "dry-wet",
+      "type": "learning-connection"
+    },
+    {
+      "from": "dry-wet",
+      "to": "rainfall-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "dry-wet",
+      "to": "land-distribution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "dry-wet",
+      "to": "water-saving",
+      "type": "learning-connection"
+    },
+    {
+      "from": "monsoon",
+      "to": "rainfall-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "monsoon",
+      "to": "rain-belt",
+      "type": "learning-connection"
+    },
+    {
+      "from": "monsoon",
+      "to": "crop-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "rain-belt",
+      "to": "monsoon",
+      "type": "learning-connection"
+    },
+    {
+      "from": "rain-belt",
+      "to": "flood-risk",
+      "type": "learning-connection"
+    },
+    {
+      "from": "rain-belt",
+      "to": "drought-risk",
+      "type": "learning-connection"
+    },
+    {
+      "from": "climate-types",
+      "to": "winter-temperature",
+      "type": "learning-connection"
+    },
+    {
+      "from": "climate-types",
+      "to": "dry-wet",
+      "type": "learning-connection"
+    },
+    {
+      "from": "climate-types",
+      "to": "crop-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "river-system",
+      "to": "river-regime",
+      "type": "learning-connection"
+    },
+    {
+      "from": "river-system",
+      "to": "water-pollution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "river-system",
+      "to": "watershed-restoration",
+      "type": "learning-connection"
+    },
+    {
+      "from": "river-regime",
+      "to": "rainfall-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "river-regime",
+      "to": "inland-rivers",
+      "type": "learning-connection"
+    },
+    {
+      "from": "river-regime",
+      "to": "river-lab",
+      "type": "learning-connection"
+    },
+    {
+      "from": "inland-rivers",
+      "to": "basins",
+      "type": "learning-connection"
+    },
+    {
+      "from": "inland-rivers",
+      "to": "water-saving",
+      "type": "learning-connection"
+    },
+    {
+      "from": "inland-rivers",
+      "to": "desertification",
+      "type": "learning-connection"
+    },
+    {
+      "from": "yangtze-course",
+      "to": "terrain-steps",
+      "type": "learning-connection"
+    },
+    {
+      "from": "yangtze-course",
+      "to": "hydropower",
+      "type": "learning-connection"
+    },
+    {
+      "from": "yangtze-course",
+      "to": "lakes",
+      "type": "learning-connection"
+    },
+    {
+      "from": "yangtze-course",
+      "to": "transport-modes",
+      "type": "learning-connection"
+    },
+    {
+      "from": "hydropower",
+      "to": "terrain-steps",
+      "type": "learning-connection"
+    },
+    {
+      "from": "hydropower",
+      "to": "yangtze-course",
+      "type": "learning-connection"
+    },
+    {
+      "from": "hydropower",
+      "to": "transport-modes",
+      "type": "learning-connection"
+    },
+    {
+      "from": "hydropower",
+      "to": "watershed-restoration",
+      "type": "learning-connection"
+    },
+    {
+      "from": "yellow-course",
+      "to": "yellow-sediment",
+      "type": "learning-connection"
+    },
+    {
+      "from": "yellow-course",
+      "to": "river-system",
+      "type": "learning-connection"
+    },
+    {
+      "from": "yellow-course",
+      "to": "watershed-restoration",
+      "type": "learning-connection"
+    },
+    {
+      "from": "yellow-sediment",
+      "to": "plateaus",
+      "type": "learning-connection"
+    },
+    {
+      "from": "yellow-sediment",
+      "to": "land-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "yellow-sediment",
+      "to": "flood-risk",
+      "type": "learning-connection"
+    },
+    {
+      "from": "lakes",
+      "to": "river-system",
+      "type": "learning-connection"
+    },
+    {
+      "from": "lakes",
+      "to": "flood-risk",
+      "type": "learning-connection"
+    },
+    {
+      "from": "lakes",
+      "to": "wetland-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "river-lab",
+      "to": "river-regime",
+      "type": "learning-connection"
+    },
+    {
+      "from": "river-lab",
+      "to": "flood-risk",
+      "type": "learning-connection"
+    },
+    {
+      "from": "river-lab",
+      "to": "hydropower",
+      "type": "learning-connection"
+    },
+    {
+      "from": "sediment-lab",
+      "to": "river-lab",
+      "type": "learning-connection"
+    },
+    {
+      "from": "sediment-lab",
+      "to": "yellow-sediment",
+      "type": "learning-connection"
+    },
+    {
+      "from": "sediment-lab",
+      "to": "yellow-course",
+      "type": "learning-connection"
+    },
+    {
+      "from": "sediment-lab",
+      "to": "flood-risk",
+      "type": "learning-connection"
+    },
+    {
+      "from": "resource-types",
+      "to": "energy-transition",
+      "type": "learning-connection"
+    },
+    {
+      "from": "resource-types",
+      "to": "carrying-capacity",
+      "type": "learning-connection"
+    },
+    {
+      "from": "resource-types",
+      "to": "water-saving",
+      "type": "learning-connection"
+    },
+    {
+      "from": "land-types",
+      "to": "land-distribution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "land-types",
+      "to": "land-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "land-types",
+      "to": "wetland-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "land-distribution",
+      "to": "rainfall-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "land-distribution",
+      "to": "plains",
+      "type": "learning-connection"
+    },
+    {
+      "from": "land-distribution",
+      "to": "crop-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "land-protection",
+      "to": "yellow-sediment",
+      "type": "learning-connection"
+    },
+    {
+      "from": "land-protection",
+      "to": "farmland-security",
+      "type": "learning-connection"
+    },
+    {
+      "from": "land-protection",
+      "to": "watershed-restoration",
+      "type": "learning-connection"
+    },
+    {
+      "from": "carrying-capacity",
+      "to": "population-density",
+      "type": "learning-connection"
+    },
+    {
+      "from": "carrying-capacity",
+      "to": "water-saving",
+      "type": "learning-connection"
+    },
+    {
+      "from": "carrying-capacity",
+      "to": "agriculture-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-distribution",
+      "to": "rainfall-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-distribution",
+      "to": "water-engineering",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-distribution",
+      "to": "water-pollution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-engineering",
+      "to": "water-distribution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-engineering",
+      "to": "water-saving",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-engineering",
+      "to": "irrigation-heritage",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-saving",
+      "to": "carrying-capacity",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-saving",
+      "to": "agriculture-technology",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-saving",
+      "to": "water-pollution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-pollution",
+      "to": "river-system",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-pollution",
+      "to": "watershed-restoration",
+      "type": "learning-connection"
+    },
+    {
+      "from": "water-pollution",
+      "to": "green-development",
+      "type": "learning-connection"
+    },
+    {
+      "from": "mineral-types",
+      "to": "resource-types",
+      "type": "learning-connection"
+    },
+    {
+      "from": "mineral-types",
+      "to": "mineral-distribution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "mineral-types",
+      "to": "industry-chain",
+      "type": "learning-connection"
+    },
+    {
+      "from": "mineral-distribution",
+      "to": "industry-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "mineral-distribution",
+      "to": "transport-modes",
+      "type": "learning-connection"
+    },
+    {
+      "from": "mineral-distribution",
+      "to": "energy-transition",
+      "type": "learning-connection"
+    },
+    {
+      "from": "energy-transition",
+      "to": "mineral-types",
+      "type": "learning-connection"
+    },
+    {
+      "from": "energy-transition",
+      "to": "industry-green",
+      "type": "learning-connection"
+    },
+    {
+      "from": "energy-transition",
+      "to": "green-development",
+      "type": "learning-connection"
+    },
+    {
+      "from": "marine-types",
+      "to": "coast",
+      "type": "learning-connection"
+    },
+    {
+      "from": "marine-types",
+      "to": "marine-fishing",
+      "type": "learning-connection"
+    },
+    {
+      "from": "marine-types",
+      "to": "energy-transition",
+      "type": "learning-connection"
+    },
+    {
+      "from": "marine-fishing",
+      "to": "resource-types",
+      "type": "learning-connection"
+    },
+    {
+      "from": "marine-fishing",
+      "to": "marine-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "marine-fishing",
+      "to": "green-development",
+      "type": "learning-connection"
+    },
+    {
+      "from": "marine-protection",
+      "to": "river-system",
+      "type": "learning-connection"
+    },
+    {
+      "from": "marine-protection",
+      "to": "water-pollution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "marine-protection",
+      "to": "wetland-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "irrigation-heritage",
+      "to": "river-lab",
+      "type": "learning-connection"
+    },
+    {
+      "from": "irrigation-heritage",
+      "to": "water-engineering",
+      "type": "learning-connection"
+    },
+    {
+      "from": "irrigation-heritage",
+      "to": "agriculture-technology",
+      "type": "learning-connection"
+    },
+    {
+      "from": "agriculture-sectors",
+      "to": "agriculture-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "agriculture-sectors",
+      "to": "industry-chain",
+      "type": "learning-connection"
+    },
+    {
+      "from": "agriculture-sectors",
+      "to": "transport-choice",
+      "type": "learning-connection"
+    },
+    {
+      "from": "agriculture-location",
+      "to": "land-distribution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "agriculture-location",
+      "to": "crop-pattern",
+      "type": "learning-connection"
+    },
+    {
+      "from": "agriculture-location",
+      "to": "transport-choice",
+      "type": "learning-connection"
+    },
+    {
+      "from": "agriculture-location",
+      "to": "carrying-capacity",
+      "type": "learning-connection"
+    },
+    {
+      "from": "crop-pattern",
+      "to": "temperature-belts",
+      "type": "learning-connection"
+    },
+    {
+      "from": "crop-pattern",
+      "to": "climate-types",
+      "type": "learning-connection"
+    },
+    {
+      "from": "crop-pattern",
+      "to": "agriculture-technology",
+      "type": "learning-connection"
+    },
+    {
+      "from": "agriculture-technology",
+      "to": "water-saving",
+      "type": "learning-connection"
+    },
+    {
+      "from": "agriculture-technology",
+      "to": "farmland-security",
+      "type": "learning-connection"
+    },
+    {
+      "from": "agriculture-technology",
+      "to": "irrigation-heritage",
+      "type": "learning-connection"
+    },
+    {
+      "from": "farmland-security",
+      "to": "land-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "farmland-security",
+      "to": "water-saving",
+      "type": "learning-connection"
+    },
+    {
+      "from": "farmland-security",
+      "to": "transport-choice",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industry-chain",
+      "to": "mineral-types",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industry-chain",
+      "to": "industry-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industry-chain",
+      "to": "transport-network",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industry-location",
+      "to": "population-density",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industry-location",
+      "to": "mineral-distribution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industry-location",
+      "to": "industrial-regions",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industry-location",
+      "to": "hightech",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industrial-regions",
+      "to": "industry-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industrial-regions",
+      "to": "transport-network",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industrial-regions",
+      "to": "industry-green",
+      "type": "learning-connection"
+    },
+    {
+      "from": "hightech",
+      "to": "industry-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "hightech",
+      "to": "industry-green",
+      "type": "learning-connection"
+    },
+    {
+      "from": "hightech",
+      "to": "agriculture-technology",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industry-green",
+      "to": "energy-transition",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industry-green",
+      "to": "water-saving",
+      "type": "learning-connection"
+    },
+    {
+      "from": "industry-green",
+      "to": "green-development",
+      "type": "learning-connection"
+    },
+    {
+      "from": "transport-modes",
+      "to": "transport-choice",
+      "type": "learning-connection"
+    },
+    {
+      "from": "transport-modes",
+      "to": "transport-network",
+      "type": "learning-connection"
+    },
+    {
+      "from": "transport-modes",
+      "to": "hydropower",
+      "type": "learning-connection"
+    },
+    {
+      "from": "transport-choice",
+      "to": "agriculture-location",
+      "type": "learning-connection"
+    },
+    {
+      "from": "transport-choice",
+      "to": "farmland-security",
+      "type": "learning-connection"
+    },
+    {
+      "from": "transport-choice",
+      "to": "transport-modes",
+      "type": "learning-connection"
+    },
+    {
+      "from": "transport-network",
+      "to": "province-memory",
+      "type": "learning-connection"
+    },
+    {
+      "from": "transport-network",
+      "to": "terrain-influence",
+      "type": "learning-connection"
+    },
+    {
+      "from": "transport-network",
+      "to": "industry-chain",
+      "type": "learning-connection"
+    },
+    {
+      "from": "jingzhang",
+      "to": "terrain-influence",
+      "type": "learning-connection"
+    },
+    {
+      "from": "jingzhang",
+      "to": "hightech",
+      "type": "learning-connection"
+    },
+    {
+      "from": "jingzhang",
+      "to": "transport-network",
+      "type": "learning-connection"
+    },
+    {
+      "from": "disaster-risk",
+      "to": "flood-risk",
+      "type": "learning-connection"
+    },
+    {
+      "from": "disaster-risk",
+      "to": "geological-hazards",
+      "type": "learning-connection"
+    },
+    {
+      "from": "disaster-risk",
+      "to": "carrying-capacity",
+      "type": "learning-connection"
+    },
+    {
+      "from": "cold-typhoon",
+      "to": "monsoon",
+      "type": "learning-connection"
+    },
+    {
+      "from": "cold-typhoon",
+      "to": "rain-belt",
+      "type": "learning-connection"
+    },
+    {
+      "from": "cold-typhoon",
+      "to": "disaster-risk",
+      "type": "learning-connection"
+    },
+    {
+      "from": "flood-risk",
+      "to": "rain-belt",
+      "type": "learning-connection"
+    },
+    {
+      "from": "flood-risk",
+      "to": "river-lab",
+      "type": "learning-connection"
+    },
+    {
+      "from": "flood-risk",
+      "to": "lakes",
+      "type": "learning-connection"
+    },
+    {
+      "from": "flood-risk",
+      "to": "watershed-restoration",
+      "type": "learning-connection"
+    },
+    {
+      "from": "drought-risk",
+      "to": "dry-wet",
+      "type": "learning-connection"
+    },
+    {
+      "from": "drought-risk",
+      "to": "water-saving",
+      "type": "learning-connection"
+    },
+    {
+      "from": "drought-risk",
+      "to": "carrying-capacity",
+      "type": "learning-connection"
+    },
+    {
+      "from": "geological-hazards",
+      "to": "terrain-influence",
+      "type": "learning-connection"
+    },
+    {
+      "from": "geological-hazards",
+      "to": "rain-belt",
+      "type": "learning-connection"
+    },
+    {
+      "from": "geological-hazards",
+      "to": "disaster-risk",
+      "type": "learning-connection"
+    },
+    {
+      "from": "green-development",
+      "to": "industry-green",
+      "type": "learning-connection"
+    },
+    {
+      "from": "green-development",
+      "to": "marine-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "green-development",
+      "to": "watershed-restoration",
+      "type": "learning-connection"
+    },
+    {
+      "from": "watershed-restoration",
+      "to": "river-system",
+      "type": "learning-connection"
+    },
+    {
+      "from": "watershed-restoration",
+      "to": "yellow-sediment",
+      "type": "learning-connection"
+    },
+    {
+      "from": "watershed-restoration",
+      "to": "water-pollution",
+      "type": "learning-connection"
+    },
+    {
+      "from": "watershed-restoration",
+      "to": "wetland-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "desertification",
+      "to": "inland-rivers",
+      "type": "learning-connection"
+    },
+    {
+      "from": "desertification",
+      "to": "dry-wet",
+      "type": "learning-connection"
+    },
+    {
+      "from": "desertification",
+      "to": "carrying-capacity",
+      "type": "learning-connection"
+    },
+    {
+      "from": "wetland-protection",
+      "to": "lakes",
+      "type": "learning-connection"
+    },
+    {
+      "from": "wetland-protection",
+      "to": "marine-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "wetland-protection",
+      "to": "nature-parks",
+      "type": "learning-connection"
+    },
+    {
+      "from": "nature-parks",
+      "to": "ethnic-diversity",
+      "type": "learning-connection"
+    },
+    {
+      "from": "nature-parks",
+      "to": "wetland-protection",
+      "type": "learning-connection"
+    },
+    {
+      "from": "nature-parks",
+      "to": "green-development",
+      "type": "learning-connection"
+    }
+  ],
+  "learningSequences": [
+    {
+      "title": "为什么东部人口更密集",
+      "nodes": [
+        "location",
+        "monsoon",
+        "rainfall-pattern",
+        "plains",
+        "agriculture-location",
+        "population-density"
+      ]
+    },
+    {
+      "title": "一滴雨怎样连接上下游",
+      "nodes": [
+        "rainfall-pattern",
+        "river-system",
+        "yellow-sediment",
+        "lakes",
+        "flood-risk",
+        "watershed-restoration"
+      ]
+    },
+    {
+      "title": "从粮食到餐桌",
+      "nodes": [
+        "land-distribution",
+        "temperature-belts",
+        "crop-pattern",
+        "agriculture-technology",
+        "transport-choice",
+        "farmland-security"
+      ]
+    },
+    {
+      "title": "从地下矿产到绿色工厂",
+      "nodes": [
+        "mineral-types",
+        "mineral-distribution",
+        "transport-modes",
+        "industry-chain",
+        "industry-green",
+        "energy-transition"
+      ]
+    },
+    {
+      "title": "给干旱绿洲算一笔水账",
+      "nodes": [
+        "dry-wet",
+        "inland-rivers",
+        "water-distribution",
+        "water-saving",
+        "carrying-capacity",
+        "desertification"
+      ]
+    }
+  ],
+  "sceneLinkedInteractions": [
+    "monsoon",
+    "yellow-sediment",
+    "land-protection",
+    "energy-transition",
+    "transport-modes",
+    "transport-choice",
+    "watershed-restoration"
+  ],
+  "conceptualInteractions": [
+    "location",
+    "latitude",
+    "longitude",
+    "territory-size",
+    "coast",
+    "neighbors",
+    "administration",
+    "province-memory",
+    "population-size",
+    "population-density",
+    "population-structure",
+    "ethnic-diversity",
+    "ethnic-pattern",
+    "maritime-rights",
+    "terrain-types",
+    "terrain-steps",
+    "step-boundaries",
+    "mountain-directions",
+    "plateaus",
+    "basins",
+    "plains",
+    "terrain-influence",
+    "weather-climate",
+    "winter-temperature",
+    "climate-altitude",
+    "temperature-belts",
+    "rainfall-pattern",
+    "dry-wet",
+    "rain-belt",
+    "climate-types",
+    "river-system",
+    "river-regime",
+    "inland-rivers",
+    "yangtze-course",
+    "hydropower",
+    "yellow-course",
+    "lakes",
+    "river-lab",
+    "sediment-lab",
+    "resource-types",
+    "land-types",
+    "land-distribution",
+    "carrying-capacity",
+    "water-distribution",
+    "water-engineering",
+    "water-saving",
+    "water-pollution",
+    "mineral-types",
+    "mineral-distribution",
+    "marine-types",
+    "marine-fishing",
+    "marine-protection",
+    "irrigation-heritage",
+    "agriculture-sectors",
+    "agriculture-location",
+    "crop-pattern",
+    "agriculture-technology",
+    "farmland-security",
+    "industry-chain",
+    "industry-location",
+    "industrial-regions",
+    "hightech",
+    "industry-green",
+    "transport-network",
+    "jingzhang",
+    "disaster-risk",
+    "cold-typhoon",
+    "flood-risk",
+    "drought-risk",
+    "geological-hazards",
+    "green-development",
+    "desertification",
+    "wetland-protection",
+    "nature-parks"
+  ],
+  "supplements": [
+    {
+      "id": "sediment-lab",
+      "reason": "另一公开新版目录包含束水攻沙，作为跨学科补充；不冒称所选预览同页原有内容。"
+    }
+  ],
+  "verification": {
+    "schema": "PASS",
+    "everySectionHasNodes": "PASS",
+    "allNarration60to110Characters": "PASS",
+    "uniqueIdsAndCues": "PASS",
+    "relatedTargetsExist": "PASS",
+    "sourceTargetsExist": "PASS",
+    "everyNodeHasIndependentQuiz": "PASS",
+    "renderedUI": "parent-verification-required",
+    "textbookEditionMatchedToStudent": "UNVERIFIED"
+  }
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "file": "location-01-6e615d5a9bcd69c5.mp3",
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "mp3",
+        "sample_rate": "24000",
+        "channels": 1
+      }
+    ],
+    "format": {
+      "duration": "15.576000",
+      "size": "311611"
+    }
+  },
+  {
+    "file": "location-02-61ae6ac11a53fd1d.mp3",
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "mp3",
+        "sample_rate": "24000",
+        "channels": 1
+      }
+    ],
+    "format": {
+      "duration": "14.928000",
+      "size": "298651"
+    }
+  },
+  {
+    "file": "location-03-14b8fb67eb40271c.mp3",
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "mp3",
+        "sample_rate": "24000",
+        "channels": 1
+      }
+    ],
+    "format": {
+      "duration": "15.168000",
+      "size": "303451"
+    }
+  }
+]

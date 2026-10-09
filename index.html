@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0a151b"><title>中国地理探索课 · 八年级上册</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%2313232b'/%3E%3Cpath d='M8 30L20 7 32 30 20 25Z' fill='%23b5e7bc'/%3E%3C/svg%3E"><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="topbar">
+  <button id="menu-toggle" class="icon mobile-only" aria-label="打开知识目录">☰</button>
+  <a class="brand" href="./"><span class="brand-mark">◭</span><span>中国地理探索课<small>CHINA · A LIVING CLASSROOM</small></span></a>
+  <div class="edition-pill">八年级 · 上册 <span>人教版参考</span></div>
+  <div class="top-actions"><button id="coverage-open">学习地图</button><button id="audio-open">♫ 配音工坊</button><button id="notes-open" class="icon" title="我的发现" aria-label="我的发现">✎</button></div>
+</header>
+<div class="workspace">
+  <aside id="sidebar" class="sidebar" aria-label="知识目录">
+    <div class="sidebar-heading"><span class="eyebrow">你的探索路线</span><button id="menu-close" class="icon mobile-only" aria-label="关闭知识目录">×</button></div>
+    <h2>从一张地图，<br>读懂整个中国。</h2>
+    <label class="search"><span>⌕</span><input id="search" type="search" placeholder="找知识点、河流、季风…" aria-label="搜索知识点"><kbd>/</kbd></label>
+    <div class="sidebar-progress"><span id="progress-label">正在装载课程…</span><span id="progress-percent">0%</span><div><i id="progress-bar"></i></div></div>
+    <nav id="curriculum-nav" aria-label="章节和知识点"></nav>
+    <button id="province-challenge" class="map-challenge"><span>◎</span><span>省区定位挑战<small>名字、简称和位置，一起记住</small></span><b>↗</b></button>
+    <div class="sidebar-foot">观察 · 动手 · 提问 · 理解<small>学习记录保存在此浏览器</small></div>
+  </aside>
+  <main class="explorer">
+    <div class="lesson-heading"><div class="breadcrumb" id="breadcrumb">中国地理 / 探索中国</div><div class="heading-row"><div><h1 id="lesson-title">让地理知识，变得看得见。</h1><p id="lesson-question">正在准备你的第一场探索…</p></div><div class="lesson-counter"><b id="node-index">01</b><span id="node-total">/ —</span></div></div></div>
+    <section class="stage" aria-label="互动沙盘">
+      <canvas id="scene" aria-label="中国地理互动沙盘，可以拖动旋转、滚轮缩放" tabindex="0"></canvas>
+      <div class="stage-top"><span class="live-badge"><i></i><span id="scene-name">中国地理沙盘</span></span><label class="layer-select"><span>图层</span><select id="layer" aria-label="沙盘图层"><option value="terrain">地形与地势</option><option value="provinces">省级行政区</option><option value="population">人口分布</option><option value="climate">气候</option><option value="rivers">河流</option><option value="agriculture">农业</option><option value="industry">工业</option><option value="resources">自然资源</option><option value="ecology">生态环境</option></select></label></div>
+      <div id="province-info" class="province-info" hidden></div>
+      <div id="challenge-info" class="challenge-info" hidden><strong id="challenge-title"></strong><p id="challenge-feedback"></p><button id="challenge-next">换一个目标 →</button><button id="challenge-stop">结束挑战</button></div>
+      <div class="scene-tools"><button id="zoom-in" title="放大" aria-label="放大沙盘">＋</button><button id="zoom-out" title="缩小" aria-label="缩小沙盘">−</button><button id="reset-view" title="重置视角" aria-label="重置视角">↺</button><button id="labels-toggle" aria-pressed="true" title="显示或隐藏标注">字</button></div>
+      <div id="metrics" class="metrics"></div>
+      <div class="stage-bottom"><span>拖动旋转 · 滚轮缩放 · 点击省区</span><span id="model-note">教学示意 · 地形非实测高程</span></div>
+      <div id="loading" class="loading">正在展开中国地理沙盘…</div>
+    </section>
+    <section class="experiment" aria-label="动手探索">
+      <div class="experiment-top"><span class="eyebrow mint">01 / 动手探索</span><button id="reset-experiment" class="text-button">重置实验 ↺</button></div>
+      <div class="slider-row"><div><label id="parameter-label" for="parameter">地形起伏</label><p id="parameter-hint">比较平面地图与地形起伏</p></div><div class="slider-control"><input id="parameter" type="range" min="0" max="100" value="50" aria-label="实验参数"><output id="parameter-value">50</output><div><span id="parameter-min">平缓</span><span id="parameter-max">起伏</span></div></div></div>
+      <p id="interaction-prompt" class="interaction-prompt"></p><div id="interaction-options" class="choice-row"></div><p id="interaction-feedback" class="feedback" aria-live="polite"></p><div id="mini-lab-host" hidden></div>
+    </section>
+    <div class="connections"><span>接着探索</span><div id="related-nodes"></div><button id="next-lesson" class="text-button">下一站 →</button></div>
+  </main>
+  <aside class="learning-panel" aria-label="讲解和问答">
+    <div class="panel-tabs" role="tablist" aria-label="学习方式"><button id="tab-explain" role="tab" aria-selected="true" aria-controls="panel-explain">看懂它</button><button id="tab-quiz" role="tab" aria-selected="false" aria-controls="panel-quiz">想一想</button><button id="tab-ask" role="tab" aria-selected="false" aria-controls="panel-ask">问老师 <i></i></button></div>
+    <section id="panel-explain" class="tab-panel" role="tabpanel" aria-labelledby="tab-explain">
+      <div class="guide-intro"><span class="guide-avatar">◈</span><div><strong>跟着问题，发现答案</strong><small id="guide-status">三步理解一个知识点</small></div></div>
+      <div id="step-dots" class="step-dots"></div>
+      <div class="narration-card"><span class="eyebrow" id="step-number">观察 01 / 03</span><h2 id="step-title"></h2><p id="step-text"></p><div class="step-controls"><button id="step-prev" aria-label="上一段讲解">←</button><button id="play-narration" class="play-audio">▷ 播放讲解</button><button id="step-next" aria-label="下一段讲解">→</button></div><small id="audio-status">等待导入正式配音，可先阅读讲解</small><audio id="narration-audio" controls hidden></audio><label class="continuous-audio"><input id="continuous-audio" type="checkbox"> 连播本知识点的三段讲解</label></div>
+      <div class="takeaway"><span>带走一个理解</span><p id="summary"></p></div>
+      <details class="misconception"><summary>容易想错的地方 <span>＋</span></summary><p id="misconception"></p></details>
+      <button id="go-quiz" class="primary-button">我来试一试 <span>→</span></button>
+      <details class="source-details"><summary>知识依据与教材说明</summary><p id="edition-note"></p><div id="sources"></div></details>
+    </section>
+    <section id="panel-quiz" class="tab-panel" role="tabpanel" aria-labelledby="tab-quiz" hidden>
+      <span class="eyebrow mint">02 / 想一想</span><h2 id="quiz-question"></h2><div id="quiz-options" class="quiz-options"></div><p id="quiz-feedback" class="quiz-feedback" aria-live="polite"></p><button id="retry-quiz" class="secondary-button" hidden>重新尝试</button><p class="progress-explanation">动手题与思考题都答对后，这一站会标记为“练习通过”。看过页面不会自动通过。</p><button id="quiz-next" class="primary-button">继续探索 →</button>
+    </section>
+    <section id="panel-ask" class="tab-panel ask-panel" role="tabpanel" aria-labelledby="tab-ask" hidden>
+      <div class="ask-intro"><span class="guide-avatar">✧</span><h2>没想明白？<br>我们换个角度。</h2><p>老师会结合你正在看的知识点讲解，也可以陪你继续追问。</p><small id="ai-status">正在连接问答服务…</small></div>
+      <div id="suggested-questions" class="suggested-questions"></div><div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+      <form id="ask-form"><label for="ask-input" class="sr-only">你的地理问题</label><textarea id="ask-input" rows="3" maxlength="1000" placeholder="比如：为什么西部高，河流就向东流？"></textarea><div><span>AI 辅助讲解 · 结合沙盘验证</span><button id="ask-send" type="submit" aria-label="发送问题">↑</button></div></form><button id="clear-chat" class="text-button">清空本次问答</button>
+    </section>
+  </aside>
+</div>
+<dialog id="workshop" class="dialog"><div class="dialog-heading"><span class="eyebrow">NARRATION STUDIO</span><button class="dialog-close icon" aria-label="关闭">×</button></div><h2>让每一段讲解，拥有好声音。</h2><p>课程支持按需生成中文 AI 配音并缓存生成结果。也可导出讲稿交给你喜欢的 TTS，再把音频命名为讲稿中的 cue ID（例如 <code>知识点ID-01.mp3</code>），批量导入。课程会自动匹配到每一段画面。</p><div class="workshop-actions"><button id="export-scripts" class="primary-button">导出全部讲稿 CSV</button><button id="export-manifest" class="secondary-button">导出配音清单 JSON</button></div><label class="upload-zone">♫<strong>选择或拖入 MP3 / WAV / OGG / M4A 音频</strong><span>本地保存，可一次导入多段；同名文件替换旧配音</span><input id="audio-files" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.webm" multiple></label><p id="audio-import-status" aria-live="polite"></p><div id="audio-inventory" class="audio-inventory"></div><p class="small">导入的音频优先于 AI 配音，保存在当前浏览器。AI 配音只发送这段讲稿给语音服务；本机版缓存于项目目录；在线版使用临时缓存，缓存失效后会重新生成。</p></dialog>
+<dialog id="coverage" class="dialog wide-dialog"><div class="dialog-heading"><span class="eyebrow">YOUR LEARNING MAP</span><button class="dialog-close icon" aria-label="关闭">×</button></div><h2>把零散知识，连成一张网。</h2><p id="coverage-edition"></p><div class="causal-chain"><span>位置与人口</span><b>→</b><span>地形 · 气候 · 河流</span><b>→</b><span>资源</span><b>→</b><span>生产生活</span><b>→</b><span>美丽中国</span></div><div id="coverage-stats" class="coverage-stats"></div><div id="coverage-list"></div><button id="export-progress" class="secondary-button">导出学习记录</button></dialog>
+<dialog id="notes" class="dialog"><div class="dialog-heading"><span class="eyebrow">FIELD NOTES</span><button class="dialog-close icon" aria-label="关闭">×</button></div><h2>记下今天的新发现。</h2><p id="note-topic"></p><label for="note-input" class="sr-only">我的发现</label><textarea id="note-input" rows="4" maxlength="2000" placeholder="我发现……因为……下次还想知道……"></textarea><button id="save-note" class="primary-button">保存这条发现</button><div id="notes-list"></div><button id="export-notes" class="secondary-button">导出探索手记</button></dialog>
+<div id="toast" class="toast" role="status"></div>
+<script src="geo.js"></script><script src="renderer.js"></script><script src="labs.js"></script><script src="app.js"></script>
+</body></html>

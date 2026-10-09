@@ -1,0 +1,15 @@
+{
+  "score": 92,
+  "verdict": "pass",
+  "category_match": true,
+  "evidence": [
+    "evidence/sites-desktop.png",
+    "evidence/sites-mobile.png"
+  ],
+  "differences": [
+    "发布版视觉延续本机课堂；配音缓存说明改为区分本机和线上。"
+  ],
+  "suggestions": [],
+  "reasoning": "桌面三栏和移动纵向布局清楚，画布与操作完整显示，浏览器无运行错误。",
+  "next_actions": []
+}

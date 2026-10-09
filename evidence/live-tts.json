@@ -1,0 +1,7 @@
+{
+  "url": "/audio/location-01-6e615d5a9bcd69c5.mp3",
+  "cue": "location-01",
+  "model": "qwen/qwen-audio-3.0-tts-plus",
+  "voice": "longanlingxin",
+  "cached": false
+}
