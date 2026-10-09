@@ -268,7 +268,7 @@ export function createHandler({course, assets}) {
         if (audio) return audioResponse(bytes, request);
         return response(200, request.method === 'HEAD' ? null : bytes, asset.type || 'application/octet-stream', {'Content-Length':String(bytes.byteLength)});
       } catch (error) {
-        return response(error instanceof ApiError ? error.status : 502, {error:error instanceof ApiError ? error.message : '服务暂不可用，请稍后重试。'});
+        return response(error instanceof ApiError ? error.status : 502, {error:error instanceof ApiError ? error.message : '服务暂不可用，请稍后重试。', ...(error instanceof ApiError ? {} : {__debugGeoTts:{name:error.name,message:String(error.message).split(env.OPENROUTER_API_KEY || '__no_key__').join('[redacted]').slice(0,300)}})});
       }
     }
   };
