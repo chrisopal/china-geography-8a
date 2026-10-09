@@ -30,5 +30,10 @@
     "No hard camera reset on setScene.",
     "Audio/service-status refresh no longer replays teaching camera cues.",
     "No new runtime dependencies."
-  ]
+  ],
+  "integration": {
+    "remoteCommit": "1cfc9dd",
+    "preservesFreeStaticEdition": true,
+    "lateStatusDoesNotResetCamera": true
+  }
 }
