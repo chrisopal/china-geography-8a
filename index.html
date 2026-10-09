@@ -20,19 +20,23 @@
   </aside>
   <main class="explorer">
     <div class="lesson-heading"><p class="static-notice">免费公开学习版 · 地图、课程与练习可直接使用。已备好首课 3 段配音；AI 问答与新配音生成暂不提供。</p><div class="breadcrumb" id="breadcrumb">中国地理 / 探索中国</div><div class="heading-row"><div><h1 id="lesson-title">让地理知识，变得看得见。</h1><p id="lesson-question">正在准备你的第一场探索…</p></div><div class="lesson-counter"><b id="node-index">01</b><span id="node-total">/ —</span></div></div></div>
+    <nav class="featured-experiments" aria-label="精选地理实验"><span>亲手验证</span><button data-explore="terrain-steps">三级阶梯</button><button data-explore="monsoon">冬夏季风</button><button data-explore="river-system">雨水去哪儿</button></nav>
     <section class="stage" aria-label="互动沙盘">
       <canvas id="scene" aria-label="中国地理互动沙盘，可以拖动旋转、滚轮缩放" tabindex="0"></canvas>
       <div class="stage-top"><span class="live-badge"><i></i><span id="scene-name">中国地理沙盘</span></span><label class="layer-select"><span>图层</span><select id="layer" aria-label="沙盘图层"><option value="terrain">地形与地势</option><option value="provinces">省级行政区</option><option value="population">人口分布</option><option value="climate">气候</option><option value="rivers">河流</option><option value="agriculture">农业</option><option value="industry">工业</option><option value="resources">自然资源</option><option value="ecology">生态环境</option></select></label></div>
+      <div class="view-toolbar" role="group" aria-label="观察视角"><button data-view="oblique" aria-pressed="true">立体</button><button data-view="top" aria-pressed="false">俯视</button><button data-view="profile" aria-pressed="false">侧视</button><button id="follow-lesson" aria-pressed="true">跟随讲解</button></div>
       <div id="province-info" class="province-info" hidden></div>
       <div id="challenge-info" class="challenge-info" hidden><strong id="challenge-title"></strong><p id="challenge-feedback"></p><button id="challenge-next">换一个目标 →</button><button id="challenge-stop">结束挑战</button></div>
-      <div class="scene-tools"><button id="zoom-in" title="放大" aria-label="放大沙盘">＋</button><button id="zoom-out" title="缩小" aria-label="缩小沙盘">−</button><button id="reset-view" title="重置视角" aria-label="重置视角">↺</button><button id="labels-toggle" aria-pressed="true" title="显示或隐藏标注">字</button></div>
+      <div class="scene-tools"><button id="zoom-in" title="放大" aria-label="放大沙盘">＋</button><button id="zoom-out" title="缩小" aria-label="缩小沙盘">−</button><button id="reset-view" title="重置视角" aria-label="重置视角">↺</button><button id="fullscreen-scene" title="全屏沙盘" aria-label="全屏沙盘" aria-pressed="false">⛶</button><button id="motion-toggle" title="暂停动态" aria-label="暂停动态" aria-pressed="false">Ⅱ</button><button id="labels-toggle" aria-pressed="true" title="显示或隐藏标注">字</button></div>
+      <div class="observation-cue"><span id="camera-mode">跟随讲解</span><p id="observation-target" aria-live="polite"></p></div>
       <div id="metrics" class="metrics"></div>
-      <div class="stage-bottom"><span>拖动旋转 · 滚轮缩放 · 点击省区</span><span id="model-note">教学示意 · 地形非实测高程</span></div>
+      <div class="stage-bottom"><span id="gesture-hint">拖动旋转 · 滚轮缩放 · 右键平移</span><span id="model-note">教学示意 · 地形非实测高程</span></div>
       <div id="loading" class="loading">正在展开中国地理沙盘…</div>
     </section>
     <section class="experiment" aria-label="动手探索">
       <div class="experiment-top"><span class="eyebrow mint">01 / 动手探索</span><button id="reset-experiment" class="text-button">重置实验 ↺</button></div>
       <div class="slider-row"><div><label id="parameter-label" for="parameter">地形起伏</label><p id="parameter-hint">比较平面地图与地形起伏</p></div><div class="slider-control"><input id="parameter" type="range" min="0" max="100" value="50" aria-label="实验参数"><output id="parameter-value">50</output><div><span id="parameter-min">平缓</span><span id="parameter-max">起伏</span></div></div></div>
+      <div id="experiment-actions" class="experiment-actions" aria-label="实验操作"></div><p id="experiment-observation" class="experiment-observation" aria-live="polite"></p>
       <p id="interaction-prompt" class="interaction-prompt"></p><div id="interaction-options" class="choice-row"></div><p id="interaction-feedback" class="feedback" aria-live="polite"></p><div id="mini-lab-host" hidden></div>
     </section>
     <div class="connections"><span>接着探索</span><div id="related-nodes"></div><button id="next-lesson" class="text-button">下一站 →</button></div>
