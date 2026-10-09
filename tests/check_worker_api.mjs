@@ -128,6 +128,9 @@ const beforeAudio = calls.length;
 const generated = await (await post('/api/narration', {cue:generatedCue.cue, text:'arbitrary attack'})).json();
 assert.match(generated.url, /^\/audio\/generated-[a-z0-9-]+-[a-f0-9]{16}\.mp3$/);
 assert.equal(generated.cached, false);
+assert.equal(generated.mimeType, 'audio/mpeg');
+assert.equal(typeof generated.audioBase64, 'string');
+assert.deepEqual(new Uint8Array(Buffer.from(generated.audioBase64, 'base64')), mockAudio);
 assert.equal(calls.length, beforeAudio + 1);
 audio = await get(generated.url + '?v=1');
 assert.equal(audio.status, 200);
@@ -158,10 +161,32 @@ assert.equal(cacheData.size, 0);
 upstream = async () => new Response(mockAudio);
 assert.equal((await post('/api/narration', {cue:generatedCue.cue}, {}, retryable)).status, 200);
 const liveCache = globalThis.caches;
+// A platform cache failure must not discard paid audio. Exercise each failure independently.
+for (const failingCache of [
+  undefined,
+  {default:{async match() { throw new Error('cache read unavailable'); }, async put() {}}},
+  {default:{async match() {}, async put() { throw new Error('cache write unavailable'); }}},
+  {default:{async match() { throw new Error('cache read unavailable'); }, async put() { throw new Error('cache write unavailable'); }}}
+]) {
+  globalThis.caches = failingCache;
+  const tolerant = createHandler({course, assets});
+  assert.equal((await (await get('/api/status', tolerant)).json()).tts.configured, true);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const fallback = await post('/api/narration', {cue:generatedCue.cue}, {}, tolerant);
+    assert.equal(fallback.status, 200, 'cache failure must still return the generated MP3');
+    const result = await fallback.json();
+    assert.equal(result.mimeType, 'audio/mpeg');
+    assert.deepEqual(new Uint8Array(Buffer.from(result.audioBase64, 'base64')), mockAudio);
+    assert.equal((await get(result.url, tolerant)).status, 404);
+  }
+}
+// Base64 encoding must work beyond argument/spread limits and across non-aligned final chunks.
 globalThis.caches = undefined;
-const beforeUnavailableCache = calls.length;
-assert.equal((await post('/api/narration', {cue:generatedCue.cue}, {}, retryable)).status, 503);
-assert.equal(calls.length, beforeUnavailableCache, 'do not bill for audio that cannot be retained');
+const largeAudio = new Uint8Array(1024 * 1024 + 1);
+largeAudio.set(mockAudio);
+upstream = async () => new Response(largeAudio);
+const largeResult = await (await post('/api/narration', {cue:generatedCue.cue}, {}, createHandler({course, assets}))).json();
+assert.deepEqual(new Uint8Array(Buffer.from(largeResult.audioBase64, 'base64')), largeAudio);
 globalThis.caches = liveCache;
 
 const limited = createHandler({course, assets});

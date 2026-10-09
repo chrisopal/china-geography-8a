@@ -26,6 +26,20 @@ function response(status, body, type = 'application/json; charset=utf-8', extra 
 
 function hex(bytes) { return Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, '0')).join(''); }
 
+function audioBase64(bytes) {
+  const chunks = [];
+  // Full chunks are divisible by three, so only the final chunk adds base64 padding.
+  for (let offset = 0; offset < bytes.length; offset += 24576) {
+    chunks.push(btoa(String.fromCharCode(...bytes.subarray(offset, offset + 24576))));
+  }
+  return chunks.join('');
+}
+
+async function matchAudioCache(request) {
+  try { return await globalThis.caches?.default?.match(request); }
+  catch { return undefined; }
+}
+
 async function readBytes(message, limit, errorStatus = 413) {
   const announced = message.headers.get('Content-Length');
   if (announced !== null && (!/^\d+$/.test(announced) || Number(announced) > limit)) throw new ApiError(errorStatus, '请求或返回内容过大。');
@@ -177,10 +191,8 @@ export function createHandler({course, assets}) {
     const result = {url:bundled ? item.bundledPath : item.generatedPath, cue, model:TTS_MODEL, voice:TTS_VOICE, cached:true};
     if (bundled) return result;
     if (!key) throw new ApiError(503, '配音服务未配置；仍可导入自己的音频。');
-    const cache = globalThis.caches?.default;
-    if (!cache) throw new ApiError(503, '音频缓存暂不可用，请稍后重试或导入音频。');
     const cacheRequest = new Request(origin + item.generatedPath);
-    if (await cache.match(cacheRequest)) return result;
+    if (await matchAudioCache(cacheRequest)) return result;
     if (pending.has(cacheRequest.url)) return pending.get(cacheRequest.url);
     takeLimit(narrationTimes, 5, '配音生成较密集，请稍等一分钟再试。');
     if (pending.size >= 5) throw new ApiError(429, '其他配音正在生成，请稍后再试。');
@@ -189,8 +201,10 @@ export function createHandler({course, assets}) {
       const isMp3 = (bytes[0] === 73 && bytes[1] === 68 && bytes[2] === 51) || (bytes[0] === 255 && (bytes[1] & 224) === 224);
       if (bytes.byteLength < 500 || !isMp3) throw new ApiError(502, '未得到可播放的音频，请重试或导入自己的配音。');
       // Only the platform's internal cache sees public max-age; all served responses are no-store.
-      await cache.put(cacheRequest, new Response(bytes, {headers:{'Content-Type':'audio/mpeg', 'Content-Length':String(bytes.byteLength), 'Cache-Control':'public, max-age=86400'}}));
-      return {...result, cached:false};
+      try {
+        await globalThis.caches?.default?.put(cacheRequest, new Response(bytes, {headers:{'Content-Type':'audio/mpeg', 'Content-Length':String(bytes.byteLength), 'Cache-Control':'public, max-age=86400'}}));
+      } catch { /* Some Sites runtimes disable Cache API; the browser receives the MP3 below. */ }
+      return {...result, cached:false, audioBase64:audioBase64(bytes), mimeType:'audio/mpeg'};
     })();
     pending.set(cacheRequest.url, task);
     try { return await task; } finally { pending.delete(cacheRequest.url); }
@@ -244,7 +258,7 @@ export function createHandler({course, assets}) {
         if (path === '/') path = '/index.html';
         const audio = path.startsWith('/audio/') ? (await clipIndex()).find(item => item.bundledPath === path || item.generatedPath === path) : null;
         if (audio && path === audio.generatedPath) {
-          const cached = await globalThis.caches?.default?.match(new Request(url.origin + path));
+          const cached = await matchAudioCache(new Request(url.origin + path));
           if (!cached) throw new ApiError(404, '音频缓存已失效，请重新生成这段讲解。');
           return audioResponse(new Uint8Array(await cached.arrayBuffer()), request);
         }

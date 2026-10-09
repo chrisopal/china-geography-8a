@@ -46,7 +46,7 @@ python3 server.py --open
 
 ## 中文配音
 
-[OpenRouter TTS](https://openrouter.ai/docs/guides/overview/multimodal/tts) 已接入，默认使用 `qwen/qwen-audio-3.0-tts-plus`、`longanlingxin` 声音。第一次点击发送当前固定讲稿生成 MP3。本机版保存到项目目录；Sites 版本使用临时边缘缓存，缓存失效后再次播放可能重新合成。首次生成需要网络并使用账户额度。第一知识点的三段已经生成；其余段落按需生成。
+[OpenRouter TTS](https://openrouter.ai/docs/guides/overview/multimodal/tts) 已接入，默认使用 `qwen/qwen-audio-3.0-tts-plus`、`longanlingxin` 声音。第一次点击发送当前固定讲稿生成 MP3。本机版保存到项目目录；Sites 版本新生成的音频保存到当前浏览器，并尽可能使用临时边缘缓存；清理浏览器数据且边缘缓存失效后可能重新合成。首次生成需要网络并使用账户额度。第一知识点的三段已经生成；其余段落按需生成。
 
 缓存文件名由讲稿内容、模型和声音共同决定，修改讲稿后不会误用旧音频。本机版可用 `OPENROUTER_TTS_MODEL` 和 `OPENROUTER_TTS_VOICE` 替换为已支持的模型/声音，再重启本机服务。声音风格仍可按孩子试听反馈调整；不使用浏览器系统朗读代替正式 TTS。
 
@@ -56,7 +56,7 @@ python3 server.py --open
 2. 生成 MP3/WAV/OGG/M4A/WebM，文件名按 cue 编号，如 `location-01.mp3`。
 3. 批量导入。文件在此浏览器的 IndexedDB 保存，优先于同段 AI 配音。单文件上限50MB。导入音频不上传。
 
-项目的 `narration/` 另附完整讲稿清单。音频以段落为单位同步到讲解步骤；不是逐字字幕或自动口型同步。连续播放只推进当前知识点，切换课程会停止旧音频。
+项目的 `narration/` 另附完整讲稿清单。在线新生成的配音通过服务器返回音频内容，浏览器保存到IndexedDB后播放；不依赖边缘缓存才能播放。音频以段落为单位同步到讲解步骤；不是逐字字幕或自动口型同步。连续播放只推进当前知识点，切换课程会停止旧音频。
 
 ## 教材和地图边界
 

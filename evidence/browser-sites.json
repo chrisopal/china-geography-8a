@@ -2,6 +2,7 @@
   "workerBundleLoads": true,
   "bundledNarrationSeconds": 15.576,
   "evictedAudioRetry": true,
+  "generatedAudioPersists": true,
   "mobileNoOverflow": true,
   "errors": []
 }

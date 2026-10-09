@@ -109,7 +109,7 @@
     const imported = audioIds.has(step.cue), cached = Boolean(serverClips[step.cue]);
     $('play-narration').disabled = false;
     $('play-narration').textContent = imported || cached ? '▷ 播放讲解' : api.tts?.configured ? '▷ 生成并播放讲解' : '♫ 导入正式配音';
-    $('audio-status').textContent = imported ? `已导入配音 · ${step.cue}` : cached ? 'AI 配音已缓存 · 可反复播放' : api.tts?.configured ? '中文 AI 配音 · 首次点击生成，之后直接播放' : '可先阅读讲解，或导入自己的配音';
+    $('audio-status').textContent = imported ? `浏览器已保存配音 · ${step.cue}` : cached ? 'AI 配音已缓存 · 可反复播放' : api.tts?.configured ? '中文 AI 配音 · 首次点击生成，之后直接播放' : '可先阅读讲解，或导入自己的配音';
     $('guide-status').textContent = `第 ${stepIndex + 1} 段 / 共 ${current.steps.length} 段 · 随时可以追问`;
   }
   function renderInteraction() {
@@ -195,10 +195,18 @@
             $('play-narration').disabled = true; $('play-narration').textContent = '正在生成讲解…'; $('audio-status').textContent = '正在合成中文 AI 配音，请稍候。';
             const response = await fetch('/api/narration', {method:'POST', headers:{'Content-Type':'application/json','X-Sandbox-Token':api.token}, body:JSON.stringify({cue}), signal:AbortSignal.timeout(60000)});
             const result = await response.json(); if (!response.ok) throw new Error(result.error || '生成失败，请重试。');
-            serverClips[cue] = result.url;
+            if (result.audioBase64) {
+              const blob = new Blob([Uint8Array.from(atob(result.audioBase64), c => c.charCodeAt(0))], {type:'audio/mpeg'});
+              try { await saveClip({cue, blob, filename:cue+'.mp3', source:'generated'}); audioIds.add(cue); }
+              catch (_) { toast('浏览器未能保存这段音频，本次仍可播放。'); }
+              if (ticket !== audioTicket) return;
+              audioUrl = URL.createObjectURL(blob); a.src = audioUrl;
+            } else {
+              serverClips[cue] = result.url;
+            }
           }
           if (ticket !== audioTicket) return;
-          a.src = serverClips[cue];
+          if (!a.src) a.src = serverClips[cue];
         }
       }
       if (ticket !== audioTicket) return;
@@ -209,7 +217,7 @@
   function allScripts() { return course.nodes.flatMap(n => n.steps.map((s, i) => ({cue:s.cue, chapter:course.chapters.find(c => c.id === n.chapter).title, topic:n.title, step:i+1, title:s.title, text:s.text, filename:s.cue+'.mp3'}))); }
   function openWorkshop() {
     const scripts = allScripts(); $('audio-import-status').textContent = `已备好 ${scripts.filter(s => audioIds.has(s.cue) || serverClips[s.cue]).length} / ${scripts.length} 段讲解。${api.tts?.configured ? '其他段落可在课程中点击生成。' : ''}`;
-    $('audio-inventory').replaceChildren(...scripts.filter(s => audioIds.has(s.cue) || serverClips[s.cue]).map(s => el('div', '', `✓ ${s.cue} · ${s.topic} · 第${s.step}段 · ${audioIds.has(s.cue)?'已导入':'AI配音已缓存'}`)));
+    $('audio-inventory').replaceChildren(...scripts.filter(s => audioIds.has(s.cue) || serverClips[s.cue]).map(s => el('div', '', `✓ ${s.cue} · ${s.topic} · 第${s.step}段 · ${audioIds.has(s.cue)?'浏览器配音':'AI配音已缓存'}`)));
     if (!$('workshop').open) $('workshop').showModal();
   }
   async function importAudio(files) {
