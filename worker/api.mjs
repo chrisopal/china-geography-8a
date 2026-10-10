@@ -1,9 +1,10 @@
-// Dependency-free Worker runtime. Access is gated by the owner-private Sites audience.
-// Limits/deduplication are isolate-local; Cache API audio is temporary, not durable storage.
+// Public application endpoints require family authentication and durable budget reservations.
+import {BudgetLedger} from './budget.mjs';
 const QA_MODEL = 'google/gemini-3.1-flash-lite';
 const TTS_MODEL = 'qwen/qwen-audio-3.0-tts-plus';
 const TTS_VOICE = 'longanlingxin';
-const CSRF_TTL = 12 * 60 * 60;
+const PAGES_ORIGIN = 'https://chrisopal.github.io';
+const SESSION_TTL = 3600000;
 const AUDIO_LIMIT = 10 * 1024 * 1024;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -25,20 +26,6 @@ function response(status, body, type = 'application/json; charset=utf-8', extra 
 }
 
 function hex(bytes) { return Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, '0')).join(''); }
-
-function audioBase64(bytes) {
-  const chunks = [];
-  // Full chunks are divisible by three, so only the final chunk adds base64 padding.
-  for (let offset = 0; offset < bytes.length; offset += 24576) {
-    chunks.push(btoa(String.fromCharCode(...bytes.subarray(offset, offset + 24576))));
-  }
-  return chunks.join('');
-}
-
-async function matchAudioCache(request) {
-  try { return await globalThis.caches?.default?.match(request); }
-  catch { return undefined; }
-}
 
 async function readBytes(message, limit, errorStatus = 413) {
   const announced = message.headers.get('Content-Length');
@@ -113,162 +100,170 @@ function audioResponse(bytes, request) {
   });
 }
 
-async function fetchOpenRouter(path, key, payload, narration) {
-  let upstream;
-  try {
-    upstream = await fetch('https://openrouter.ai/api/v1/' + path, {
-      method:'POST', headers:{Authorization:'Bearer ' + key, 'Content-Type':'application/json', 'X-OpenRouter-Title':'China Geography Learning Sandbox'},
-      body:JSON.stringify(payload), signal:AbortSignal.timeout(narration ? 50000 : 45000)
-    });
-    if (!upstream.ok) {
-      await upstream.body?.cancel();
-      const messages = {401:'问答密钥验证未通过，请检查服务端配置。', 402:'问答服务额度不足，请检查 OpenRouter 账户。', 429:'模型服务忙，请稍后再试。'};
-      throw new ApiError(502, narration ? `配音服务暂未成功响应（HTTP ${upstream.status}），可重试或导入音频。` : messages[upstream.status] || `模型服务暂未成功响应（HTTP ${upstream.status}），请稍后重试。`);
-    }
-    return await readBytes(upstream, narration ? AUDIO_LIMIT : 1024 * 1024, 502);
-  } catch (error) {
-    if (error instanceof ApiError) throw error;
-    throw new ApiError(504, narration ? '配音生成超时，请稍后重试。' : '问答连接超时，请检查网络后重试。你的问题仍保留在输入框。');
+
+async function digest(value) { return hex(await crypto.subtle.digest('SHA-256', encoder.encode(value))); }
+function equalHash(a, b) {
+  if (a.length !== b.length) return false;
+  let different = 0;
+  for (let i = 0; i < a.length; i++) different |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return different === 0;
+}
+function serviceReady(env) {
+  return !!env.DB && typeof env.OPENROUTER_API_KEY === 'string' &&
+    /^[a-f0-9]{64}$/.test(env.FAMILY_ACCESS_SHA256 || '') && env.FAMILY_AI_ENABLED === '1';
+}
+async function login(data, request, env) {
+  if (!serviceReady(env)) throw new ApiError(503, '家庭问答暂未开放；课程、地图和练习可继续使用。');
+  const window = Math.floor(Date.now() / 1800000);
+  const ip = await digest(request.headers.get('CF-Connecting-IP') || 'unknown');
+  const buckets = [`ip:${window}:${ip}`, `all:${window}`];
+  const counts = await env.DB.batch(buckets.map(bucket => env.DB.prepare(`INSERT INTO login_attempts (bucket, count) VALUES (?, 1)
+    ON CONFLICT(bucket) DO UPDATE SET count = count + 1 RETURNING count`).bind(bucket)));
+  if (counts[0].results[0].count > 10 || counts[1].results[0].count > 100) throw new ApiError(429, '访问码尝试过多，请半小时后再试。');
+  if (typeof data.code !== 'string' || data.code.length > 128 || !equalHash(await digest(data.code), env.FAMILY_ACCESS_SHA256)) {
+    throw new ApiError(401, '家庭访问码不正确。');
+  }
+  const token = hex(crypto.getRandomValues(new Uint8Array(32)));
+  const expiresAt = Date.now() + SESSION_TTL;
+  await env.DB.prepare('INSERT INTO family_sessions (token_hash, expires_at) VALUES (?, ?)')
+    .bind(await digest(env.FAMILY_ACCESS_SHA256 + token), expiresAt).run();
+  return {token, expiresAt};
+}
+async function authenticate(request, env) {
+  if (!serviceReady(env)) throw new ApiError(503, '家庭问答暂未开放；课程、地图和练习可继续使用。');
+  const token = request.headers.get('Authorization')?.replace(/^Bearer /, '') || '';
+  if (!/^[a-f0-9]{64}$/.test(token)) throw new ApiError(401, '请先输入家庭访问码。');
+  const session = await env.DB.prepare('SELECT expires_at FROM family_sessions WHERE token_hash = ?')
+    .bind(await digest(env.FAMILY_ACCESS_SHA256 + token)).first();
+  if (!session || session.expires_at <= Date.now()) throw new ApiError(401, '家庭访问已到期，请重新输入访问码。');
+}
+
+async function verifyQaTariff() {
+  // This public, free request never includes the account key. Refuse changed model
+  // limits or cache/reasoning prices rather than continuing from stale assumptions.
+  const metadata = await fetch('https://openrouter.ai/api/v1/models/' + QA_MODEL + '/endpoints', {signal:AbortSignal.timeout(10000)});
+  if (!metadata.ok) throw new ApiError(503, '暂时无法核对问答价格，请稍后再试。');
+  const endpoints = (await metadata.json()).data?.endpoints;
+  const matches = Array.isArray(endpoints) && endpoints.filter(item => item.tag?.startsWith('google-ai-studio') &&
+    Number(item.pricing?.prompt) <= .00000025 && Number(item.pricing?.completion) <= .0000015);
+  if (!matches?.length || matches.some(item => !item.context_length || item.context_length > 1048576 ||
+      !item.max_completion_tokens || item.max_completion_tokens > 65536 ||
+      !item.supported_parameters?.includes('max_tokens') ||
+      Number(item.pricing.internal_reasoning || 0) > .0000015 ||
+      Number(item.pricing.input_cache_write || 0) > .000000084 ||
+      Number(item.pricing.input_cache_read || 0) > .000000025 || Number(item.pricing.request || 0) !== 0)) {
+    throw new ApiError(503, '问答模型价格或限制已变更，已暂停以保护额度。');
   }
 }
 
 export function createHandler({course, assets}) {
   const nodeIds = new Set(course.nodes.map(node => node.id));
-  const steps = new Map(course.nodes.flatMap(node => node.steps).map(step => [step.cue, step]));
-  const requestTimes = [];
-  const narrationTimes = [];
-  const pending = new Map();
+  const steps = course.nodes.flatMap(node => node.steps);
   let indexPromise;
-  let signingSecret;
-  let signingKey;
-
-  function takeLimit(times, maximum, message) {
-    const now = Date.now();
-    while (times.length && now - times[0] >= 60000) times.shift();
-    if (times.length >= maximum) throw new ApiError(429, message);
-    times.push(now);
-  }
-
-  function keyFor(secret) {
-    if (secret !== signingSecret) {
-      signingSecret = secret;
-      signingKey = crypto.subtle.importKey('raw', encoder.encode(secret), {name:'HMAC', hash:'SHA-256'}, false, ['sign', 'verify']);
-    }
-    return signingKey;
-  }
-
-  const tokenMessage = (origin, data) => encoder.encode('china-geography-csrf:v1\n' + origin + '\n' + data);
-  async function issueToken(secret, origin) {
-    if (!secret) return '';
-    const data = `${Math.floor(Date.now() / 1000) + CSRF_TTL}.${hex(crypto.getRandomValues(new Uint8Array(16)))}`;
-    return data + '.' + hex(await crypto.subtle.sign('HMAC', await keyFor(secret), tokenMessage(origin, data)));
-  }
-
-  async function verifyToken(secret, origin, token) {
-    if (!secret || typeof token !== 'string') return false;
-    const parts = /^(\d{10})\.([a-f0-9]{32})\.([a-f0-9]{64})$/.exec(token);
-    if (!parts) return false;
-    const now = Math.floor(Date.now() / 1000);
-    if (Number(parts[1]) <= now || Number(parts[1]) > now + CSRF_TTL) return false;
-    const signature = Uint8Array.from(parts[3].match(/../g), byte => parseInt(byte, 16));
-    return crypto.subtle.verify('HMAC', await keyFor(secret), signature, tokenMessage(origin, parts[1] + '.' + parts[2]));
-  }
-
   function clipIndex() {
-    // Web Crypto executes during a request, never while the Worker module initializes.
-    if (!indexPromise) indexPromise = Promise.all([...steps.values()].map(async step => {
-      if (!/^[a-z0-9-]+$/.test(step.cue)) throw new Error('Invalid course cue');
-      const hash = hex(await crypto.subtle.digest('SHA-256', encoder.encode(TTS_MODEL + '\n' + TTS_VOICE + '\n' + step.text))).slice(0, 16);
-      return {step, bundledPath:`/audio/${step.cue}-${hash}.mp3`, generatedPath:`/audio/generated-${step.cue}-${hash}.mp3`};
-    }));
+    if (!indexPromise) indexPromise = Promise.all(steps.map(async step => ({step,
+      path:`/audio/${step.cue}-${(await digest(TTS_MODEL + '\n' + TTS_VOICE + '\n' + step.text)).slice(0, 16)}.mp3`
+    })));
     return indexPromise;
   }
-
-  async function narrate(cue, key, origin) {
-    const item = (await clipIndex()).find(clip => clip.step.cue === cue);
-    if (!item) throw new ApiError(400, '没有找到这段课程讲稿。');
-    const bundled = Object.hasOwn(assets, item.bundledPath);
-    const result = {url:bundled ? item.bundledPath : item.generatedPath, cue, model:TTS_MODEL, voice:TTS_VOICE, cached:true};
-    if (bundled) return result;
-    if (!key) throw new ApiError(503, '配音服务未配置；仍可导入自己的音频。');
-    const cacheRequest = new Request(origin + item.generatedPath);
-    if (await matchAudioCache(cacheRequest)) return result;
-    if (pending.has(cacheRequest.url)) return pending.get(cacheRequest.url);
-    takeLimit(narrationTimes, 5, '配音生成较密集，请稍等一分钟再试。');
-    if (pending.size >= 5) throw new ApiError(429, '其他配音正在生成，请稍后再试。');
-    const task = (async () => {
-      const bytes = await fetchOpenRouter('audio/speech', key, {model:TTS_MODEL, voice:TTS_VOICE, input:item.step.text, response_format:'mp3'}, true);
-      const isMp3 = (bytes[0] === 73 && bytes[1] === 68 && bytes[2] === 51) || (bytes[0] === 255 && (bytes[1] & 224) === 224);
-      if (bytes.byteLength < 500 || !isMp3) throw new ApiError(502, '未得到可播放的音频，请重试或导入自己的配音。');
-      // Only the platform's internal cache sees public max-age; all served responses are no-store.
-      try {
-        await globalThis.caches?.default?.put(cacheRequest, new Response(bytes, {headers:{'Content-Type':'audio/mpeg', 'Content-Length':String(bytes.byteLength), 'Cache-Control':'public, max-age=86400'}}));
-      } catch { /* Some Sites runtimes disable Cache API; the browser receives the MP3 below. */ }
-      return {...result, cached:false, audioBase64:audioBase64(bytes), mimeType:'audio/mpeg'};
-    })();
-    pending.set(cacheRequest.url, task);
-    try { return await task; } finally { pending.delete(cacheRequest.url); }
-  }
-
-  async function ask(data, key) {
+  async function ask(data, env) {
     const question = data.question;
     const history = data.history === undefined ? [] : data.history;
     const recent = Array.isArray(history) ? history.slice(-6) : null;
-    if (typeof question !== 'string' || !question.trim() || Array.from(question.trim()).length > 1000 || !recent || !nodeIds.has(data.nodeId) || recent.some(item => !item || typeof item !== 'object' || !['user', 'assistant'].includes(item.role) || typeof item.content !== 'string' || Array.from(item.content).length > 3000)) {
-      throw new ApiError(400, '问题或知识点格式不正确，请刷新后重试。');
+    if (typeof question !== 'string' || !question.trim() || Array.from(question.trim()).length > 1000 ||
+        !recent || !nodeIds.has(data.nodeId) || recent.some(item => !item || !['user', 'assistant'].includes(item.role) ||
+        typeof item.content !== 'string' || Array.from(item.content).length > 3000) ||
+        typeof data.requestId !== 'string' || !/^[a-f0-9-]{36}$/.test(data.requestId)) {
+      throw new ApiError(400, '问题或请求格式不正确，请刷新后重试。');
     }
-    if (!key) throw new ApiError(503, '问答服务尚未配置密钥；课程、沙盘和练习仍可使用。');
-    takeLimit(requestTimes, 20, '提问较密集，请稍等一分钟再试。');
+    const fingerprint = await digest(JSON.stringify({question, nodeId:data.nodeId, history:recent}));
+    const ledger = new BudgetLedger(env.DB);
+    await verifyQaTariff();
+    // $0.75 exceeds the entire native context + output + cache + reasoning bounds
+    // (< $0.58 even when conservatively counted separately). No token estimation.
+    // Requests stop early when less than $0.75 is available to reserve safely.
+    const reservation = await ledger.reserve(data.requestId, fingerprint, 750_000);
+    if (!reservation.allowed) {
+      if (reservation.row?.state === 'done') return JSON.parse(reservation.row.result);
+      if (reservation.reason === 'conflict') throw new ApiError(409, '同一请求编号不能用于不同问题。');
+      throw new ApiError(429, reservation.row ? '这次请求已接收，请稍后查看；不会重复扣费发送。' : '今日问答额度已用完或正在核对费用。课程、地图和练习可继续使用。');
+    }
     const selected = retrieve(course, question.trim(), data.nodeId);
     const messages = [{role:'system', content:teacherPrompt(selected)}, ...recent.map(item => ({role:item.role, content:item.content})), {role:'user', content:question.trim()}];
-    const bytes = await fetchOpenRouter('chat/completions', key, {model:QA_MODEL, messages, temperature:.35, max_tokens:1000}, false);
-    let result;
-    try { result = JSON.parse(decoder.decode(bytes)); } catch { throw new ApiError(502, '模型没有返回可用回答，请重试。'); }
-    const answer = result?.choices?.[0]?.message?.content;
-    if (typeof answer !== 'string' || !answer.trim()) throw new ApiError(502, '模型没有返回可用回答，请重试。');
-    const sourceIds = new Set(selected.flatMap(node => node.sources || []));
-    return {answer:answer.trim(), model:typeof result.model === 'string' ? result.model : QA_MODEL, related:selected.map(node => ({id:node.id, title:node.title})),
-      sources:course.sources.filter(source => sourceIds.has(source.id)), usage:{prompt_tokens:result.usage?.prompt_tokens ?? null, completion_tokens:result.usage?.completion_tokens ?? null}};
+    try {
+      const upstream = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method:'POST', headers:{Authorization:'Bearer ' + env.OPENROUTER_API_KEY, 'Content-Type':'application/json'},
+        body:JSON.stringify({model:QA_MODEL, messages, max_tokens:1000, temperature:.35,
+          provider:{only:['google-ai-studio'], allow_fallbacks:false, require_parameters:true,
+            max_price:{prompt:.25, completion:1.5, request:0}}}), signal:AbortSignal.timeout(45000)
+      });
+      if (!upstream.ok) { await upstream.body?.cancel(); throw new Error('Upstream failed'); }
+      const result = JSON.parse(decoder.decode(await readBytes(upstream, 1024 * 1024, 502)));
+      const answer = result?.choices?.[0]?.message?.content;
+      const cost = result?.usage?.cost;
+      if (typeof answer !== 'string' || !answer.trim() || typeof cost !== 'number' || !Number.isFinite(cost) || cost < 0 || cost > 1) throw new Error('Unverifiable result');
+      const sourceIds = new Set(selected.flatMap(node => node.sources || []));
+      const output = {answer:answer.trim(), model:QA_MODEL, related:selected.map(node => ({id:node.id, title:node.title})),
+        sources:course.sources.filter(source => sourceIds.has(source.id)),
+        usage:{prompt_tokens:result.usage?.prompt_tokens ?? null, completion_tokens:result.usage?.completion_tokens ?? null}};
+      await ledger.settle(data.requestId, Math.ceil(cost * 1_000_000), output);
+      return output;
+    } catch {
+      await ledger.uncertain(data.requestId);
+      throw new ApiError(503, '本次请求未能确认结果，已保留额度防止重复费用。课程、地图和练习可继续使用。');
+    }
   }
-
   return {
-    async fetch(request, env = {}, ctx) {
+    async fetch(request, env = {}) {
+      const url = new URL(request.url);
+      const origin = request.headers.get('Origin');
+      const allowed = origin === url.origin || origin === PAGES_ORIGIN;
+      const cors = allowed ? {'Access-Control-Allow-Origin':origin, Vary:'Origin',
+        'Access-Control-Allow-Headers':'Content-Type, Authorization', 'Access-Control-Allow-Methods':'GET, POST, OPTIONS'} : {};
+      const reply = (status, body, type, headers) => response(status, body, type, {...cors, ...headers});
       try {
-        const url = new URL(request.url);
         let path;
         try { path = decodeURIComponent(url.pathname); } catch { throw new ApiError(404, '文件不存在。'); }
         if (path.includes('\\') || path.split('/').some(part => part.startsWith('.'))) throw new ApiError(404, '文件不存在。');
-        const key = typeof env.OPENROUTER_API_KEY === 'string' ? env.OPENROUTER_API_KEY.trim() : '';
+        if (request.method === 'OPTIONS') {
+          if (!allowed) throw new ApiError(403, '不允许此来源。');
+          return reply(204, null);
+        }
         if (request.method === 'POST') {
-          if (request.headers.get('Origin') !== url.origin || !await verifyToken(key, url.origin, request.headers.get('X-Sandbox-Token'))) throw new ApiError(403, '请从当前沙盘页面发起请求，或刷新页面后重试。');
-          if (!['/api/ask', '/api/narration'].includes(path)) throw new ApiError(404, '接口不存在。');
+          if (!allowed) throw new ApiError(403, '请从课程页面发起请求。');
+          if (!['/api/login', '/api/ask', '/api/narration'].includes(path)) throw new ApiError(404, '接口不存在。');
           if (request.headers.get('Content-Type')?.split(';')[0].trim().toLowerCase() !== 'application/json') throw new ApiError(415, '请使用 JSON 格式。');
           let data;
-          const bytes = await readBytes(request, 20000);
-          try { data = JSON.parse(decoder.decode(bytes)); } catch { throw new ApiError(400, '问题或知识点格式不正确，请刷新后重试。'); }
-          if (!data || typeof data !== 'object' || Array.isArray(data)) throw new ApiError(400, '问题或知识点格式不正确，请刷新后重试。');
-          return response(200, path === '/api/ask' ? await ask(data, key) : await narrate(data.cue, key, url.origin));
+          try { data = JSON.parse(decoder.decode(await readBytes(request, 20000))); }
+          catch (error) { if (error instanceof ApiError) throw error; throw new ApiError(400, '请求格式不正确。'); }
+          if (!data || typeof data !== 'object' || Array.isArray(data)) throw new ApiError(400, '请求格式不正确。');
+          if (path === '/api/login') return reply(200, await login(data, request, env));
+          // Live narration is deliberately absent: public playback uses fixed MP3s.
+          if (path === '/api/narration') {
+            const clip = (await clipIndex()).find(item => item.step.cue === data.cue);
+            if (!clip) throw new ApiError(400, '没有找到这段课程讲稿。');
+            if (!Object.hasOwn(assets, clip.path)) throw new ApiError(503, '这段固定配音尚未准备好，可阅读讲稿或导入音频。');
+            return reply(200, {url:clip.path, cue:data.cue, cached:true});
+          }
+          await authenticate(request, env);
+          return reply(200, await ask(data, env));
         }
-        if (!['GET', 'HEAD'].includes(request.method)) return response(405, {error:'不支持此请求方式。'}, undefined, {Allow:'GET, HEAD, POST'});
+        if (!['GET', 'HEAD'].includes(request.method)) return reply(405, {error:'不支持此请求方式。'});
         if (path === '/api/status') {
-          const clips = Object.fromEntries((await clipIndex()).filter(item => Object.hasOwn(assets, item.bundledPath)).map(item => [item.step.cue, item.bundledPath]));
-          return response(200, {version:'1.2.0', configured:!!key, model:QA_MODEL, token:await issueToken(key, url.origin), tts:{configured:!!key, model:TTS_MODEL, voice:TTS_VOICE, clips}});
+          const clips = Object.fromEntries((await clipIndex()).filter(item => Object.hasOwn(assets, item.path)).map(item => [item.step.cue, item.path]));
+          return reply(200, {version:'1.3.0', configured:serviceReady(env), familyLogin:true, model:QA_MODEL,
+            tts:{configured:false, model:TTS_MODEL, voice:TTS_VOICE, clips}});
         }
-        if (path === '/api/curriculum') return response(200, course);
+        if (path === '/api/curriculum') return reply(200, course);
         if (path === '/') path = '/index.html';
-        const audio = path.startsWith('/audio/') ? (await clipIndex()).find(item => item.bundledPath === path || item.generatedPath === path) : null;
-        if (audio && path === audio.generatedPath) {
-          const cached = await matchAudioCache(new Request(url.origin + path));
-          if (!cached) throw new ApiError(404, '音频缓存已失效，请重新生成这段讲解。');
-          return audioResponse(new Uint8Array(await cached.arrayBuffer()), request);
-        }
-        if (!(STATIC_FILES.has(path) || path.startsWith('/assets/') || (audio && path === audio.bundledPath)) || !Object.hasOwn(assets, path)) throw new ApiError(404, '文件不存在。');
+        const audio = path.startsWith('/audio/') && (await clipIndex()).find(item => item.path === path);
+        if (!(STATIC_FILES.has(path) || path.startsWith('/assets/') || audio) || !Object.hasOwn(assets, path)) throw new ApiError(404, '文件不存在。');
         const asset = assets[path];
         const bytes = asset.base64 ? Uint8Array.from(atob(asset.body), char => char.charCodeAt(0)) : encoder.encode(asset.body);
         if (audio) return audioResponse(bytes, request);
-        return response(200, request.method === 'HEAD' ? null : bytes, asset.type || 'application/octet-stream', {'Content-Length':String(bytes.byteLength)});
+        return reply(200, request.method === 'HEAD' ? null : bytes, asset.type || 'application/octet-stream', {'Content-Length':String(bytes.byteLength)});
       } catch (error) {
-        return response(error instanceof ApiError ? error.status : 502, {error:error instanceof ApiError ? error.message : '服务暂不可用，请稍后重试。'});
+        return reply(error instanceof ApiError ? error.status : 503, {error:error instanceof ApiError ? error.message : '服务暂不可用，课程和练习仍可使用。'});
       }
     }
   };

@@ -368,15 +368,42 @@
     $('audio-import-status').textContent = `已导入 ${ok} 段。${skipped.length ? '未匹配或未保存：' + skipped.slice(0, 8).join('、') + '。请核对 cue 文件名，单文件需小于50MB。' : '返回课程即可播放，刷新页面后仍保留。'}`;
     $('audio-files').value = '';
   }
+
+  let familySession = '', familyExpires = 0, pendingAsk = null;
+  const apiUrl = path => (window.GEOGRAPHY_STATIC?.apiBase || '') + path;
+  async function familyLogin() {
+    if (!api.familyLogin || (familySession && familyExpires > Date.now())) return true;
+    const dialog = document.createElement('dialog');
+    dialog.innerHTML = '<form class="family-form"><h2>家庭问答</h2><p>请输入家庭访问码。本次访问一小时后到期。</p><label>访问码 <input type="password" autocomplete="current-password" required maxlength="128"></label><p class="family-error" role="status"></p><button type="submit">打开问答</button> <button type="button">取消</button></form>';
+    document.body.append(dialog); dialog.showModal();
+    return new Promise(resolve => {
+      const finish = ok => { dialog.close(); dialog.remove(); resolve(ok); };
+      dialog.querySelector('button[type="button"]').onclick = () => finish(false);
+      dialog.oncancel = event => { event.preventDefault(); finish(false); };
+      dialog.querySelector('form').onsubmit = async event => {
+        event.preventDefault(); const submit = dialog.querySelector('button[type="submit"]'); submit.disabled = true;
+        try {
+          const response = await fetch(apiUrl('/api/login'), {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code:dialog.querySelector('input').value}), signal:AbortSignal.timeout(15000)});
+          const data = await response.json(); if (!response.ok) throw new Error(data.error || '无法登录，请稍后重试。');
+          familySession = data.token; familyExpires = data.expiresAt; finish(true);
+        } catch(error) { dialog.querySelector('.family-error').textContent = error.message; submit.disabled = false; }
+      };
+    });
+  }
   async function askTeacher(event) {
     event.preventDefault(); if (chatBusy) return;
     const question = $('ask-input').value.trim(); if (!question) return;
     if (!api.configured) { toast('问答服务未配置，课程和练习仍可使用。'); return; }
+    if (!await familyLogin()) return;
     const askedNodeId = current.id;
     chatBusy = true; $('ask-send').disabled = true; $('clear-chat').disabled = true;
     const user = el('div', 'chat-bubble user', question), pending = el('div', 'chat-bubble', '正在结合课程想一想…'); $('chat-messages').append(user, pending); pending.scrollIntoView({block:'nearest'});
     try {
-      const res = await fetch('/api/ask', {method:'POST', headers:{'Content-Type':'application/json', 'X-Sandbox-Token':api.token}, body:JSON.stringify({question, nodeId:askedNodeId, history:history.slice(-6)}), signal:AbortSignal.timeout(55000)});
+      const body = {question, nodeId:askedNodeId, history:history.slice(-6)};
+      const fingerprint = JSON.stringify(body);
+      if (!pendingAsk || pendingAsk.fingerprint !== fingerprint) pendingAsk = {fingerprint, requestId:crypto.randomUUID()};
+      const res = await fetch(apiUrl('/api/ask'), {method:'POST', headers:{'Content-Type':'application/json', ...(api.familyLogin ? {Authorization:'Bearer '+familySession} : {'X-Sandbox-Token':api.token})}, body:JSON.stringify({...body,requestId:pendingAsk.requestId}), signal:AbortSignal.timeout(55000)});
+      if (res.status === 401) { familySession = ''; familyExpires = 0; }
       const result = await res.json(); if (!res.ok) throw new Error(result.error || '服务暂时没有回应，请重试。');
       pending.replaceChildren();
       // Render only emphasis, using text nodes for every model-supplied string.
@@ -386,7 +413,7 @@
       const links = el('div', 'chat-links'); result.related.forEach(n => { const b = el('button', '', n.title + ' ↗'); b.onclick = () => { selectNode(n.id); switchTab('ask'); }; links.append(b); });
       pending.append(links, el('small', '', `AI 辅助回答 · ${result.model}\n参考节点：${result.related.map(n => n.title).join('、')}。点击节点可回到课程查证。`));
       history.push({role:'user', content:question}, {role:'assistant', content:result.answer}); history = history.slice(-6);
-      $('ask-input').value = ''; $('ai-status').textContent = '已连接 · ' + result.model;
+      pendingAsk = null; $('ask-input').value = ''; $('ai-status').textContent = '已连接 · ' + result.model;
     } catch (err) { pending.classList.add('error'); pending.textContent = err.name === 'TimeoutError' ? '本次问答超时，请稍后再试。问题已保留。' : err.message; }
     finally { chatBusy = false; $('ask-send').disabled = false; $('clear-chat').disabled = false; pending.scrollIntoView({block:'nearest'}); }
   }
@@ -448,10 +475,12 @@
       try { await initAudioDB(); } catch (_) { toast('当前浏览器无法保存音频，文字课程仍可使用。'); }
       wire(); selectNode(ids.has(saved.lastNode) ? saved.lastNode : course.nodes[0].id); $('loading').hidden = true;
       window.geographyApp = {getState:() => ({nodeId:current.id, step:stepIndex, tab, followLesson, motionPaused, visited:[...state.visited], mastered:course.nodes.filter(n => mastered(n.id)).map(n => n.id), interactionChoice, quizChoice, audioIds:[...audioIds], notes:state.notes.length, challenge:challenge?.id || null, scene:scene.getState()}), selectNode, getCourse:() => course};
+      Object.assign(serverClips, api.tts?.clips || {}); renderStep(false);
       try {
-        if (!staticMode) { const r = await fetch('/api/status'); api = await r.json(); }
+        if (!staticMode || api.apiBase) { const r = await fetch(apiUrl('/api/status'), {signal:AbortSignal.timeout(10000)}); if(r.ok) { const status = await r.json(); api = {...status, tts:staticMode ? api.tts : status.tts}; } }
         Object.assign(serverClips, api.tts?.clips || {}); renderStep(false);
-        $('ai-status').textContent = staticMode ? '免费公开学习版 · 不提供 AI 问答与新配音生成' : api.configured ? '已配置 · 提问时连接课程老师' : '问答尚未配置 · 可先使用课程与练习';
+        $('ai-status').textContent = api.configured ? (api.familyLogin ? '家庭问答 · 输入访问码后使用' : '已配置 · 提问时连接课程老师') : '问答暂未开放 · 课程与练习可直接使用';
+        if (api.configured) { $('ask-input').disabled = false; $('ask-send').disabled = false; }
       } catch (_) { $('ai-status').textContent = '问答连接不可用 · 请检查网络后重试'; }
     } catch (err) { $('loading').textContent = `${err.message}。${staticMode ? '请刷新页面重试。' : '请使用“启动地理探索课.command”重新打开。'}`; }
   }

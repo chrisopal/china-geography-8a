@@ -12,3 +12,5 @@ dist/
 *.tar.gz
 
 .playwright-cli/
+node_modules/
+family-access-code.txt

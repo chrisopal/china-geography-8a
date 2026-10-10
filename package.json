@@ -1,0 +1,10 @@
+{
+  "name":"china-geography-8a",
+  "private":true,
+  "scripts":{
+    "build":"node scripts/build-sites.mjs",
+    "db:generate":"drizzle-kit generate",
+    "test:guard":"node tests/check_budget.mjs && node tests/check_worker_api.mjs"
+  },
+  "devDependencies":{"drizzle-kit":"0.31.10","drizzle-orm":"0.45.2"}
+}

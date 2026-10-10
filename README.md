@@ -46,11 +46,11 @@ python3 server.py --open
 
 密钥从环境变量 `OPENROUTER_API_KEY` 或本机 `~/.config/china-geography-8a/openrouter.key` 读取。私密文件必须位于项目外，并设置为仅本人可读。仓库不含密钥，克隆后需要配置自己的密钥。Sites 版本在托管环境的 secret 中配置同名变量。
 
-本机版可用 `OPENROUTER_MODEL` 环境变量更换问答模型。网络或额度异常时会明确提示；本地课程和练习不受影响。本机版仅监听回环地址；在线版由 Sites 私密访问策略保护。进度仍保存在当前浏览器，尚无多人账号或跨设备同步。
+本机版可用 `OPENROUTER_MODEL` 环境变量更换问答模型。网络或额度异常时会明确提示；本地课程和练习不受影响。本机版仅监听回环地址；在线版付费问答需要家庭访问码和持久额度账本。进度仍保存在当前浏览器，尚无多人账号或跨设备同步。
 
 ## 中文配音
 
-[OpenRouter TTS](https://openrouter.ai/docs/guides/overview/multimodal/tts) 已接入，默认使用 `qwen/qwen-audio-3.0-tts-plus`、`longanlingxin` 声音。第一次点击发送当前固定讲稿生成 MP3。本机版保存到项目目录；Sites 版本新生成的音频保存到当前浏览器，并尽可能使用临时边缘缓存；清理浏览器数据且边缘缓存失效后可能重新合成。首次生成需要网络并使用账户额度。第一知识点的三段已经生成；其余段落按需生成。
+[OpenRouter TTS](https://openrouter.ai/docs/guides/overview/multimodal/tts) 已接入，默认使用 `qwen/qwen-audio-3.0-tts-plus`、`longanlingxin` 声音。第一次点击发送当前固定讲稿生成 MP3。本机版保存到项目目录；Sites 和 Pages 版本只播放已生成的固定 MP3，不提供在线实时合成。首次生成需要网络并使用账户额度。第一知识点的三段已经生成；其余固定讲稿待安全预生成。
 
 缓存文件名由讲稿内容、模型和声音共同决定，修改讲稿后不会误用旧音频。本机版可用 `OPENROUTER_TTS_MODEL` 和 `OPENROUTER_TTS_VOICE` 替换为已支持的模型/声音，再重启本机服务。声音风格仍可按孩子试听反馈调整；不使用浏览器系统朗读代替正式 TTS。
 
@@ -60,7 +60,7 @@ python3 server.py --open
 2. 生成 MP3/WAV/OGG/M4A/WebM，文件名按 cue 编号，如 `location-01.mp3`。
 3. 批量导入。文件在此浏览器的 IndexedDB 保存，优先于同段 AI 配音。单文件上限50MB。导入音频不上传。
 
-项目的 `narration/` 另附完整讲稿清单。在线新生成的配音通过服务器返回音频内容，浏览器保存到IndexedDB后播放；不依赖边缘缓存才能播放。音频以段落为单位同步到讲解步骤；不是逐字字幕或自动口型同步。连续播放只推进当前知识点，切换课程会停止旧音频。
+项目的 `narration/` 另附完整讲稿清单。已有 MP3 作为静态文件发布，重复播放不调用模型。音频以段落为单位同步到讲解步骤；不是逐字字幕或自动口型同步。连续播放只推进当前知识点，切换课程会停止旧音频。
 
 ## 教材和地图边界
 
@@ -70,7 +70,7 @@ python3 server.py --open
 
 ## 文件与验证
 
-核心文件：`index.html`、`styles.css`、`app.js`；`renderer.js` 与 `geo.js`；`labs.js`；`curriculum.json`；`server.py` 与 `speech.py`。采用原生浏览器能力和 Python 标准库，省去框架构建、数据库与额外依赖。
+核心文件：`index.html`、`styles.css`、`app.js`；`renderer.js` 与 `geo.js`；`labs.js`；`curriculum.json`；`server.py` 与 `speech.py`。前端采用原生浏览器能力，本机服务使用 Python 标准库；Sites 预算账本使用 D1，结构迁移由固定版本 Drizzle 工具生成。
 
 ```sh
 python3 tests/check_curriculum.py
@@ -88,23 +88,30 @@ node tests/check_math.cjs
 
 构建只包含前端、内嵌地图数据、课程和匹配当前讲稿的已有 MP3，不包含 Python、Worker、secret 或 API。所有运行资源使用相对路径且由同站点提供，适配 `/china-geography-8a/` 项目路径。进度和导入音频仍只保存在当前浏览器。微信及中国大陆网络的可达性需在真实设备和网络下另行验证。
 
-### 原私密 Sites 版本
+### 家庭问答后端
 
-`worker/api.mjs` 实现与本机 Python 服务一致的问答和配音接口；`scripts/build-sites.mjs` 将前端、课程数据、首课音频与接口打包成一个 Worker ESM，无需安装依赖。需要 Node.js 20+。
+`worker/api.mjs` 和 `worker/budget.mjs` 提供家庭问答；`scripts/build-sites.mjs` 生成 Worker ESM。原有 `OPENROUTER_API_KEY` 只在 Sites 运行时使用。新增 `FAMILY_ACCESS_SHA256` secret 存储高熵家庭访问码的 SHA-256；`FAMILY_AI_ENABLED=1` 才允许调用。缺少配置或 D1 时关闭付费接口。不要提交访问码、secret 或会话 token。
 
 ```sh
+npm ci
+npm run db:generate # 仅在修改 db/schema.ts 后生成新迁移
+node tests/check_budget.mjs
 node tests/check_worker_api.mjs
 node scripts/build-sites.mjs
 node scripts/validate-sites.mjs
 ```
 
-`.openai/hosting.json` 记录当前 Site ID。自行部署到新 Site 时，使用 Sites 工具创建自己的 Site 并替换该 ID，在运行时配置 `OPENROUTER_API_KEY` secret，再通过 Sites 的源码同步、保存版本、发布流程部署；不要将密钥写入源文件或 manifest。
+会话一小时到期，仅保存在页面内存；登录按 IP 和全局持久计数限速。CORS 只接受本站和 `https://chrisopal.github.io`，CORS 不替代认证。每个问答请求都有幂等编号；超时或费用不明保留额度，禁止自动付费重试。成功回答和费用记录保存在 D1；不会记录用户完整问题、访问码或 API key。
 
-目前线上访问范围为所有者，公开 GitHub 仓库与网站访问权限分别管理。不要在没有新增身份校验和持久化全局额度控制的情况下开放付费 AI 接口给匿名访问者。Worker 内的限流和音频去重以实例为单位，不是全局计费限额。
+每日合计上限为 1 美元，按 UTC+8 计日。D1 单条条件插入原子预留 0.75 美元，覆盖已核验模型的完整上下文、输出、缓存及推理上界，避免依赖粗略 token 估计。服务端核对公开模型价格和最大长度，并限制供应商与请求单价；返回可信费用后才结算释放余额。未结算请求跨日仍占额度，跨日完成则保守记入开始日及结束日。可用额不足预留值时会提前停止，而不是冒险花尽最后余额。这个额度只覆盖经过本站后端的调用，不限制同一 OpenRouter 账号其他项目的消费。
 
-代码使用原生 JavaScript、Canvas、Python 标准库及 Cloudflare Worker Web APIs；地理数据和课程参考的来源及使用范围见 `research/`。仓库公开不代表第三方地图数据获得了额外商业授权。
+新增固定音频尚未生成：语音接口未明确支持 `max_price`，约 0.36 美元仅为当前字符单价的估算，不作为硬上限保证。在线实时 TTS 已移除，因此不会绕过共享账本额外花费。固定 MP3 可通过 `node scripts/build-pages.mjs` 自动按内容哈希收录，已取消仅容许三段的限制。
 
-在线 Worker 的模型和声音使用 `worker/api.mjs` 中的固定默认配置；变更后需重新构建并发布。
+确认后端公开访问和认证正常后，用 `PAGES_FAMILY_API=https://china-geography-8a-chrisopal.chrisxie.chatgpt.site node scripts/build-pages.mjs` 构建带家庭入口的 Pages 版本。未指定此值仍构建无后端的免费版；课程和已有音频不依赖后端可用性。
+
+`.openai/hosting.json` 保留原 Site ID，并声明 `DB`；Sites 负责建库与应用已提交的结构迁移。不要在请求处理时改表，也不要改写已部署迁移。发布遵循 Sites 官方源码同步、保存版本、部署流程。
+
+地图与课程来源见 `research/`；仓库公开不代表第三方地图数据获得额外商业授权。真实手机、微信及中国大陆网络需分别验证。
 
 ## 1.1.0 交互验证
 

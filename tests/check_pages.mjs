@@ -9,7 +9,7 @@ const html = await read('index.html');
 const config = JSON.parse(html.match(/window\.GEOGRAPHY_STATIC=(.*?);<\/script>/)[1]);
 assert.equal(config.configured, false);
 assert.equal(config.tts.configured, false);
-assert.equal(Object.keys(config.tts.clips).length, 3);
+assert.ok(Object.keys(config.tts.clips).length >= 3);
 assert.match(html, /id="ask-input" disabled/);
 assert.match(html, /id="ask-send" disabled/);
 assert.match(html, /免费公开学习版/);
@@ -27,7 +27,7 @@ const allowed = new Set(['.nojekyll','index.html','styles.css','app.js','rendere
 for (const name of await readdir(root)) assert.ok(allowed.has(name), `Unexpected deployment file: ${name}`);
 const app = await read('app.js');
 assert.match(app, /fetch\('\.\/curriculum.json'\)/);
-assert.match(app, /if \(!staticMode\) \{ const r = await fetch\('\/api\/status'\)/);
+assert.match(app, /fetch\(apiUrl\('\/api\/status'\)/);
 const context = {window:{}};
 vm.runInNewContext(await read('geo.js'), context);
 assert.equal(context.window.CHINA_PROVINCES.length, 34);
