@@ -54,4 +54,6 @@
 .process-chain{color:#9ec7c9;font-size:11px;line-height:1.8}
 @media(max-width:720px){.simulation-controls{gap:8px;margin-top:-8px}.simulation-playback{flex-wrap:wrap}.simulation-playback button{min-height:40px}.process-chain{width:100%;font-size:10px}}
 
+.family-form{max-width:360px;padding:16px;line-height:1.7}.family-form input{max-width:100%;display:block;margin:10px 0;padding:8px}.family-error{color:var(--coral)}
+
 .static-notice{font-size:11px;line-height:1.7;color:var(--mint);padding:9px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
